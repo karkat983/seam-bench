@@ -139,6 +139,15 @@ def to_chunk(obj: dict, graph: BundleGraph | None = None) -> Chunk | None:
     )
 
 
+def part_id(technique_id: str, part: int) -> str:
+    """Chroma ID of one part of a technique, e.g. T1003.001#2."""
+    return f"{technique_id}#{part}"
+
+
+def technique_of(pid: str) -> str:
+    return pid.split("#", 1)[0]
+
+
 def split_text(text: str, max_chars: int, overlap: int) -> list[str]:
     """Split text into pieces of at most max_chars, overlapping by about `overlap` chars.
 
@@ -188,9 +197,11 @@ def build_index(
 
     parts = []
     for c in chunks:
-        for i, text in enumerate(split_text(c.text, max_chars, overlap)):
+        pieces = split_text(c.text, max_chars, overlap)
+        for i, text in enumerate(pieces):
             header = f"{c.id}: {c.name} (continued)\n\n" if i else ""
-            parts.append((f"{c.id}#{i}", header + text, c))
+            meta = {"part": i, "n_parts": len(pieces)}
+            parts.append((part_id(c.id, i), header + text, c, meta))
 
     client = chromadb.PersistentClient(path=str(chroma_dir))
     if collection in [c.name for c in client.list_collections()]:
@@ -199,8 +210,8 @@ def build_index(
     for i in range(0, len(parts), BATCH_SIZE):
         batch = parts[i:i + BATCH_SIZE]
         col.add(
-            ids=[pid for pid, _, _ in batch],
-            documents=[text for _, text, _ in batch],
+            ids=[pid for pid, _, _, _ in batch],
+            documents=[text for _, text, _, _ in batch],
             metadatas=[
                 {
                     "technique_id": c.id,
@@ -209,8 +220,9 @@ def build_index(
                     "stix_id": c.stix_id,
                     "tactics": ",".join(c.tactics),
                     "platforms": ",".join(c.platforms),
+                    **meta,
                 }
-                for _, _, c in batch
+                for _, _, c, meta in batch
             ],
         )
     return col

@@ -2,7 +2,9 @@ import pathlib
 
 import pytest
 
-from src.ingest import attack_id, clean_text, load_bundle, parse_techniques, split_text
+from src.ingest import (
+    attack_id, clean_text, load_bundle, parse_techniques, part_id, split_text, technique_of,
+)
 
 FIXTURE = pathlib.Path(__file__).parent / "fixtures" / "mini_stix.json"
 
@@ -91,3 +93,8 @@ def test_split_covers_every_word():
 def test_split_rejects_bad_settings():
     with pytest.raises(ValueError):
         split_text("abc", max_chars=10, overlap=10)
+
+
+def test_part_id_round_trip():
+    assert part_id("T1003.001", 2) == "T1003.001#2"
+    assert technique_of("T1003.001#2") == "T1003.001"

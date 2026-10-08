@@ -8,17 +8,22 @@ from src.config import load_config, resolve
 
 
 def search(question: str, k: int) -> list[tuple[str, str, float]]:
-    """Return (technique ID, name, distance) for the k nearest chunks."""
+    """Return (technique ID, name, distance) for the k nearest techniques.
+
+    Long techniques are stored as several parts; a technique is ranked by its closest part.
+    """
     import chromadb
 
     cfg = load_config()
     client = chromadb.PersistentClient(path=str(resolve(cfg, "chroma_dir")))
     col = client.get_collection(cfg["attack"]["collection"])
-    res = col.query(query_texts=[question], n_results=k)
-    return [
-        (tid, meta["name"], dist)
-        for tid, meta, dist in zip(res["ids"][0], res["metadatas"][0], res["distances"][0])
-    ]
+    res = col.query(query_texts=[question], n_results=k * 4)
+    best: dict[str, tuple[str, str, float]] = {}
+    for meta, dist in zip(res["metadatas"][0], res["distances"][0]):
+        tid = meta["technique_id"]
+        if tid not in best:            # results arrive closest first
+            best[tid] = (tid, meta["name"], dist)
+    return list(best.values())[:k]
 
 
 def main() -> None:
