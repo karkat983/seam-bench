@@ -12,7 +12,7 @@ from dataclasses import dataclass, field
 
 from src.retriever import Hit
 
-DEFAULT_PLAN = ["retrieve", "analyze", "recommend"]
+DEFAULT_PLAN = ["retrieve", "lookup", "analyze", "recommend"]
 
 
 @dataclass

@@ -7,7 +7,7 @@ def test_runs_steps_in_plan_order():
     seen = []
     steps = {name: (lambda st, n=name: seen.append(n)) for name in DEFAULT_PLAN}
     Orchestrator(steps).run("q")
-    assert seen == ["retrieve", "analyze", "recommend"]
+    assert seen == ["retrieve", "lookup", "analyze", "recommend"]
 
 
 def test_custom_plan_and_state_passed_through():
