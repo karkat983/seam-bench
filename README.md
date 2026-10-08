@@ -29,4 +29,4 @@ Agents that read retrieved documents, tool outputs, and other agents' messages t
 Public data only (MITRE ATT&CK Enterprise, STIX 2.1). Not affiliated with any employer. Built October 2026.
 
 ## Changelog
-- Day 1: project scaffold.
+- Day 1: project scaffold and changelog.
