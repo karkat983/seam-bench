@@ -8,7 +8,7 @@ TECHNIQUES = [
     ("T1059.001", "PowerShell", "Adversaries abuse PowerShell commands and scripts to execute code."),
     ("T1003.001", "LSASS Memory", "Adversaries dump credentials from the memory of the LSASS process."),
     ("T1566.001", "Spearphishing Attachment", "Adversaries send emails with a malicious file attached."),
-    ("T1021.001", "Remote Desktop Protocol", "Adversaries log in to remote hosts over RDP to move laterally."),
+    ("T1021.001", "Remote Desktop Protocol", "Adversaries log in to remote hosts over RDP to move."),
     ("T1486", "Data Encrypted for Impact", "Adversaries encrypt files on many systems to demand a ransom."),
 ]
 

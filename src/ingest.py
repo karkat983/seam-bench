@@ -270,7 +270,9 @@ def build_index(
 
 
 def main() -> None:
-    parser = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
+    parser = argparse.ArgumentParser(
+        description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter
+    )
     parser.add_argument("--rebuild", action="store_true", help="rebuild even if the index is current")
     parser.add_argument("--limit", type=int, help="index only the first N techniques (by ID)")
     args = parser.parse_args()

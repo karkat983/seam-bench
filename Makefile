@@ -1,7 +1,7 @@
 # Common tasks. Run `make help` for a list.
 PYTHON ?= .venv/bin/python
 
-.PHONY: help setup data ingest check test clean
+.PHONY: help setup data ingest check lint test clean
 
 help:      ## list targets
 	@grep -E '^[a-z]+:.*## ' $(MAKEFILE_LIST) | awk -F':.*## ' '{printf "  %-8s %s\n", $$1, $$2}'
@@ -17,6 +17,9 @@ ingest:    ## build the Chroma index (no-op if already current)
 
 check:     ## retrieval smoke test on three probe queries
 	$(PYTHON) scripts/check_retrieval.py
+
+lint:      ## ruff lint
+	$(PYTHON) -m ruff check .
 
 test:      ## offline unit tests (no LLM calls)
 	$(PYTHON) -m pytest -q -m "not live"

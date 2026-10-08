@@ -1,10 +1,15 @@
 import pytest
 
 from src.ingest import (
-    attack_id, clean_text, ingest_stats, load_bundle, parse_techniques, part_id, split_text,
+    attack_id,
+    clean_text,
+    ingest_stats,
+    load_bundle,
+    parse_techniques,
+    part_id,
+    split_text,
     technique_of,
 )
-
 from tests.conftest import MINI_STIX as FIXTURE
 
 
@@ -79,7 +84,7 @@ def test_split_respects_max_and_overlaps():
     pieces = split_text(text, max_chars=200, overlap=40)
     assert len(pieces) > 1
     assert all(len(p) <= 200 for p in pieces)
-    for a, b in zip(pieces, pieces[1:]):
+    for a, b in zip(pieces, pieces[1:], strict=False):
         assert b.split()[0] in a          # the next piece starts inside the previous one
 
 

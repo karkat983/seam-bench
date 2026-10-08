@@ -33,7 +33,7 @@ class Retriever:
         res = self._col.query(query_texts=[question], n_results=k * 4)
         best: dict[str, Hit] = {}
         for pid, doc, meta, dist in zip(
-            res["ids"][0], res["documents"][0], res["metadatas"][0], res["distances"][0]
+            res["ids"][0], res["documents"][0], res["metadatas"][0], res["distances"][0], strict=True
         ):
             tid = meta["technique_id"]
             if tid not in best:            # results arrive closest first
