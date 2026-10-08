@@ -28,6 +28,7 @@ chunking:
 paths:
   stix_bundle: data/raw/enterprise-attack.json
   chroma_dir: data/chroma
+  llm_cache: data/cache
   tasks: data/tasks.json
 
 attack:
