@@ -48,3 +48,8 @@ def test_detection_strategies_are_attached_and_deprecated_ones_skipped():
     text = {c.id: c.text for c in chunks()}["T1059.001"]
     assert "Detection strategies: Detect suspicious PowerShell execution" in text
     assert "Old deprecated strategy" not in text
+
+
+def test_data_components_come_from_strategy_analytics():
+    text = {c.id: c.text for c in chunks()}["T1059.001"]
+    assert "Data components: Process Creation, Script Execution" in text

@@ -74,6 +74,21 @@ def build_graph(bundle: dict) -> BundleGraph:
     return graph
 
 
+def data_components(graph: BundleGraph, technique_id: str) -> list[str]:
+    """Names of the data components that the technique's analytics read from."""
+    names = set()
+    for strategy in graph.strategies.get(technique_id, []):
+        for analytic_id in strategy.get("x_mitre_analytic_refs", []):
+            analytic = graph.by_id.get(analytic_id)
+            if analytic is None or not is_active(analytic):
+                continue
+            for source in analytic.get("x_mitre_log_source_references", []):
+                component = graph.by_id.get(source.get("x_mitre_data_component_ref", ""))
+                if component is not None and is_active(component):
+                    names.add(component["name"])
+    return sorted(names)
+
+
 def to_chunk(obj: dict, graph: BundleGraph | None = None) -> Chunk | None:
     tid = attack_id(obj)
     if tid is None:
@@ -88,6 +103,9 @@ def to_chunk(obj: dict, graph: BundleGraph | None = None) -> Chunk | None:
     strategies = sorted(s["name"] for s in graph.strategies.get(obj["id"], [])) if graph else []
     if strategies:
         parts.append("Detection strategies: " + "; ".join(strategies))
+    components = data_components(graph, obj["id"]) if graph else []
+    if components:
+        parts.append("Data components: " + ", ".join(components))
     return Chunk(
         id=tid,
         name=name,
