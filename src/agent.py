@@ -50,6 +50,13 @@ class AgentState:
     def record(self, name: str, input: str, output: str, source: str) -> None:
         self.steps.append(Step(name=name, input=input, output=output, source=source))
 
+    def deliver(self, message: AgentMessage) -> None:
+        """Hand a message to its recipient. Seam C intercepts exactly here."""
+        self.messages.append(message)
+
+    def inbox(self, recipient: str) -> list[AgentMessage]:
+        return [m for m in self.messages if m.recipient == recipient]
+
     def trace(self) -> list[dict]:
         """The trace as plain dicts, ready to write as JSON."""
         return [dataclasses.asdict(s) for s in self.steps]

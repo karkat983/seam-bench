@@ -52,9 +52,10 @@ def make_analyze(summarizer: Summarizer) -> StepFn:
     def analyze(state: AgentState) -> None:
         sources = tuple(h.source for h in state.hits) + tuple(f"tool:{r['tool']}" for r in state.tool_results)
         text = summarizer.summarize(state.question, state.hits, state.tool_results)
-        message = AgentMessage("summarizer", "orchestrator", content=text, provenance=sources)
-        state.messages.append(message)
-        state.findings = message.content
-        state.record("analyze", "; ".join(sources), message.content, "agent:summarizer")
+        state.deliver(AgentMessage("summarizer", "orchestrator", content=text, provenance=sources))
+        # The orchestrator works from what was delivered to it, not from the summarizer's raw output.
+        received = state.inbox("orchestrator")[-1]
+        state.findings = received.content
+        state.record("analyze", "; ".join(sources), received.content, "agent:summarizer")
 
     return analyze
