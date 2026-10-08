@@ -48,3 +48,13 @@ def test_analyze_sends_hits_and_tool_output_to_summarizer():
     (_, user), = llm.calls
     assert "[retrieval:T1003.001#0]" in user and "[tool:cve_lookup]" in user
     assert state.steps[-1].name == "analyze" and state.steps[-1].source == "agent:summarizer"
+
+
+def test_summarizer_uses_prompt_file_by_default():
+    from src.subagents import load_prompt
+
+    llm = FakeLLM()
+    Summarizer(llm).summarize("q", [], [])
+    (system, _), = llm.calls
+    assert system == load_prompt("summarizer")
+    assert "Do not recommend a final action" in system

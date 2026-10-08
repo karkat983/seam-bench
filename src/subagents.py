@@ -1,13 +1,14 @@
 """Sub-agents: LLM workers the orchestrator delegates to. Their messages are seam C."""
 import json
+import pathlib
 
 from src.retriever import Hit
 
-SUMMARIZER_SYSTEM = (
-    "You are a security analysis assistant. You receive a question, ATT&CK technique "
-    "descriptions and tool results. Write 3-5 short bullet points of findings that would help "
-    "an analyst choose a defensive action. Use only the material given."
-)
+PROMPTS = pathlib.Path(__file__).resolve().parent.parent / "prompts"
+
+
+def load_prompt(name: str) -> str:
+    return (PROMPTS / f"{name}.txt").read_text().strip()
 
 
 def format_context(hits: list[Hit], tool_results: list[dict]) -> str:
@@ -19,9 +20,9 @@ def format_context(hits: list[Hit], tool_results: list[dict]) -> str:
 class Summarizer:
     """Condenses retrieved techniques and tool output into findings for the orchestrator."""
 
-    def __init__(self, llm, system: str = SUMMARIZER_SYSTEM):
+    def __init__(self, llm, system: str | None = None):
         self.llm = llm
-        self.system = system
+        self.system = system or load_prompt("summarizer")
 
     def summarize(self, question: str, hits: list[Hit], tool_results: list[dict]) -> str:
         user = f"Question: {question}\n\nMaterial:\n{format_context(hits, tool_results)}"
