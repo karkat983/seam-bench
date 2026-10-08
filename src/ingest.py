@@ -8,7 +8,8 @@ Chroma's built-in local model and stored in a persistent collection.
 """
 import json
 import pathlib
-from dataclasses import dataclass
+from collections import defaultdict
+from dataclasses import dataclass, field
 
 from src.config import load_config, resolve
 
@@ -51,16 +52,42 @@ def is_active(obj: dict) -> bool:
     return not obj.get("revoked", False) and not obj.get("x_mitre_deprecated", False)
 
 
-def to_chunk(obj: dict) -> Chunk | None:
+@dataclass
+class BundleGraph:
+    """Lookups over the relationship graph, keyed by technique STIX ID."""
+    by_id: dict[str, dict]
+    strategies: dict[str, list[dict]] = field(default_factory=lambda: defaultdict(list))
+
+
+def build_graph(bundle: dict) -> BundleGraph:
+    objects = bundle.get("objects", [])
+    graph = BundleGraph(by_id={o["id"]: o for o in objects})
+    for rel in objects:
+        if rel.get("type") != "relationship" or not is_active(rel):
+            continue
+        source = graph.by_id.get(rel["source_ref"])
+        if source is None or not is_active(source):
+            continue
+        # ATT&CK v18+: detection-strategy --detects--> attack-pattern
+        if rel["relationship_type"] == "detects" and source["type"] == "x-mitre-detection-strategy":
+            graph.strategies[rel["target_ref"]].append(source)
+    return graph
+
+
+def to_chunk(obj: dict, graph: BundleGraph | None = None) -> Chunk | None:
     tid = attack_id(obj)
     if tid is None:
         return None
     name = obj.get("name", "").strip()
     description = obj.get("description", "").strip()
+    # Pre-v18 bundles carry free-text detection advice on the technique itself.
     detection = obj.get("x_mitre_detection", "").strip()
     parts = [f"{tid}: {name}", description]
     if detection:
         parts.append(f"Detection: {detection}")
+    strategies = sorted(s["name"] for s in graph.strategies.get(obj["id"], [])) if graph else []
+    if strategies:
+        parts.append("Detection strategies: " + "; ".join(strategies))
     return Chunk(
         id=tid,
         name=name,
@@ -74,11 +101,12 @@ def to_chunk(obj: dict) -> Chunk | None:
 
 def parse_techniques(bundle: dict) -> list[Chunk]:
     """Return a chunk for every active attack-pattern in the bundle, sorted by ID."""
+    graph = build_graph(bundle)
     chunks = []
     for obj in bundle.get("objects", []):
         if obj.get("type") != "attack-pattern" or not is_active(obj):
             continue
-        chunk = to_chunk(obj)
+        chunk = to_chunk(obj, graph)
         if chunk is not None:
             chunks.append(chunk)
     return sorted(chunks, key=lambda c: c.id)

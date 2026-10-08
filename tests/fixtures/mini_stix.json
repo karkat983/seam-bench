@@ -89,6 +89,63 @@
           "external_id": "M1042"
         }
       ]
+    },
+    {
+      "type": "x-mitre-data-component",
+      "id": "x-mitre-data-component--00000000-0000-4000-8000-000000000101",
+      "name": "Process Creation"
+    },
+    {
+      "type": "x-mitre-data-component",
+      "id": "x-mitre-data-component--00000000-0000-4000-8000-000000000102",
+      "name": "Script Execution"
+    },
+    {
+      "type": "x-mitre-analytic",
+      "id": "x-mitre-analytic--00000000-0000-4000-8000-000000000201",
+      "name": "Analytic 0001",
+      "description": "Detect powershell.exe spawning with encoded commands.",
+      "x_mitre_log_source_references": [
+        {
+          "x_mitre_data_component_ref": "x-mitre-data-component--00000000-0000-4000-8000-000000000101",
+          "name": "WinEventLog:Sysmon",
+          "channel": "EventCode=1"
+        },
+        {
+          "x_mitre_data_component_ref": "x-mitre-data-component--00000000-0000-4000-8000-000000000102",
+          "name": "WinEventLog:PowerShell",
+          "channel": "EventCode=4104"
+        }
+      ]
+    },
+    {
+      "type": "x-mitre-detection-strategy",
+      "id": "x-mitre-detection-strategy--00000000-0000-4000-8000-000000000301",
+      "name": "Detect suspicious PowerShell execution",
+      "x_mitre_analytic_refs": [
+        "x-mitre-analytic--00000000-0000-4000-8000-000000000201"
+      ]
+    },
+    {
+      "type": "x-mitre-detection-strategy",
+      "id": "x-mitre-detection-strategy--00000000-0000-4000-8000-000000000302",
+      "name": "Old deprecated strategy",
+      "x_mitre_deprecated": true,
+      "x_mitre_analytic_refs": []
+    },
+    {
+      "type": "relationship",
+      "id": "relationship--00000000-0000-4000-8000-000000000401",
+      "relationship_type": "detects",
+      "source_ref": "x-mitre-detection-strategy--00000000-0000-4000-8000-000000000301",
+      "target_ref": "attack-pattern--00000000-0000-4000-8000-000000000002"
+    },
+    {
+      "type": "relationship",
+      "id": "relationship--00000000-0000-4000-8000-000000000402",
+      "relationship_type": "detects",
+      "source_ref": "x-mitre-detection-strategy--00000000-0000-4000-8000-000000000302",
+      "target_ref": "attack-pattern--00000000-0000-4000-8000-000000000002"
     }
   ]
 }

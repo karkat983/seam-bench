@@ -42,3 +42,9 @@ def test_tactics_come_from_mitre_attack_kill_chain_only():
 def test_platforms_are_kept():
     platforms = {c.id: c.platforms for c in chunks()}
     assert platforms == {"T1059": ("Windows", "Linux", "macOS"), "T1059.001": ("Windows",)}
+
+
+def test_detection_strategies_are_attached_and_deprecated_ones_skipped():
+    text = {c.id: c.text for c in chunks()}["T1059.001"]
+    assert "Detection strategies: Detect suspicious PowerShell execution" in text
+    assert "Old deprecated strategy" not in text
