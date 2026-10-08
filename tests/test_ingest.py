@@ -53,3 +53,9 @@ def test_detection_strategies_are_attached_and_deprecated_ones_skipped():
 def test_data_components_come_from_strategy_analytics():
     text = {c.id: c.text for c in chunks()}["T1059.001"]
     assert "Data components: Process Creation, Script Execution" in text
+
+
+def test_mitigations_attached_and_revoked_ones_skipped():
+    text = {c.id: c.text for c in chunks()}["T1059.001"]
+    assert "Mitigations: Execution Prevention" in text
+    assert "Retired Mitigation" not in text

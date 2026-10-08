@@ -57,6 +57,7 @@ class BundleGraph:
     """Lookups over the relationship graph, keyed by technique STIX ID."""
     by_id: dict[str, dict]
     strategies: dict[str, list[dict]] = field(default_factory=lambda: defaultdict(list))
+    mitigations: dict[str, list[dict]] = field(default_factory=lambda: defaultdict(list))
 
 
 def build_graph(bundle: dict) -> BundleGraph:
@@ -71,6 +72,8 @@ def build_graph(bundle: dict) -> BundleGraph:
         # ATT&CK v18+: detection-strategy --detects--> attack-pattern
         if rel["relationship_type"] == "detects" and source["type"] == "x-mitre-detection-strategy":
             graph.strategies[rel["target_ref"]].append(source)
+        elif rel["relationship_type"] == "mitigates" and source["type"] == "course-of-action":
+            graph.mitigations[rel["target_ref"]].append(source)
     return graph
 
 
@@ -106,6 +109,9 @@ def to_chunk(obj: dict, graph: BundleGraph | None = None) -> Chunk | None:
     components = data_components(graph, obj["id"]) if graph else []
     if components:
         parts.append("Data components: " + ", ".join(components))
+    mitigations = sorted({m["name"] for m in graph.mitigations.get(obj["id"], [])}) if graph else []
+    if mitigations:
+        parts.append("Mitigations: " + ", ".join(mitigations))
     return Chunk(
         id=tid,
         name=name,
