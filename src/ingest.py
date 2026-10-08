@@ -4,8 +4,11 @@ Each chunk holds the technique ID, name, description and detection text.
 Revoked and deprecated objects are skipped. Chunks are embedded with
 Chroma's built-in local model and stored in a persistent collection.
 
-    python -m src.ingest
+    python -m src.ingest              # skips work if the index already matches the data
+    python -m src.ingest --rebuild    # always drop and rebuild
 """
+import argparse
+import hashlib
 import json
 import pathlib
 import re
@@ -185,14 +188,29 @@ def parse_techniques(bundle: dict) -> list[Chunk]:
     return sorted(chunks, key=lambda c: c.id)
 
 
+def fingerprint(parts: list[tuple]) -> str:
+    """Hash of every part ID and text, so an unchanged index can be detected."""
+    sha = hashlib.sha256()
+    for pid, text, _, _ in parts:
+        sha.update(pid.encode())
+        sha.update(b"\0")
+        sha.update(text.encode())
+        sha.update(b"\0")
+    return sha.hexdigest()
+
+
 def build_index(
     chunks: list[Chunk],
     chroma_dir: pathlib.Path,
     collection: str,
     max_chars: int = 1000,
     overlap: int = 150,
+    rebuild: bool = False,
 ):
-    """(Re)create the collection and add every chunk, split into parts. Returns the collection."""
+    """Create the collection from the chunks (split into parts) unless it is already current.
+
+    Returns (collection, built) where built is False when the existing index was reused.
+    """
     import chromadb  # imported here so parsing works without chromadb installed
 
     parts = []
@@ -203,10 +221,14 @@ def build_index(
             meta = {"part": i, "n_parts": len(pieces)}
             parts.append((part_id(c.id, i), header + text, c, meta))
 
+    digest = fingerprint(parts)
     client = chromadb.PersistentClient(path=str(chroma_dir))
     if collection in [c.name for c in client.list_collections()]:
+        existing = client.get_collection(collection)
+        if not rebuild and (existing.metadata or {}).get("fingerprint") == digest:
+            return existing, False
         client.delete_collection(collection)
-    col = client.create_collection(collection)
+    col = client.create_collection(collection, metadata={"fingerprint": digest})
     for i in range(0, len(parts), BATCH_SIZE):
         batch = parts[i:i + BATCH_SIZE]
         col.add(
@@ -225,19 +247,24 @@ def build_index(
                 for _, _, c, meta in batch
             ],
         )
-    return col
+    return col, True
 
 
 def main() -> None:
+    parser = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
+    parser.add_argument("--rebuild", action="store_true", help="rebuild even if the index is current")
+    args = parser.parse_args()
+
     cfg = load_config()
     chunks = parse_techniques(load_bundle(resolve(cfg, "stix_bundle")))
     subs = sum(c.is_subtechnique for c in chunks)
     print(f"parsed {len(chunks)} techniques ({len(chunks) - subs} top-level, {subs} sub-techniques)")
-    col = build_index(
+    col, built = build_index(
         chunks, resolve(cfg, "chroma_dir"), cfg["attack"]["collection"],
-        cfg["chunking"]["max_chars"], cfg["chunking"]["overlap_chars"],
+        cfg["chunking"]["max_chars"], cfg["chunking"]["overlap_chars"], rebuild=args.rebuild,
     )
-    print(f"indexed {col.count()} parts from {len(chunks)} techniques into {cfg['attack']['collection']}")
+    verb = "indexed" if built else "index up to date:"
+    print(f"{verb} {col.count()} parts from {len(chunks)} techniques in {cfg['attack']['collection']}")
 
 
 if __name__ == "__main__":

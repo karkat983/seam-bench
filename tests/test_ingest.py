@@ -98,3 +98,15 @@ def test_split_rejects_bad_settings():
 def test_part_id_round_trip():
     assert part_id("T1003.001", 2) == "T1003.001#2"
     assert technique_of("T1003.001#2") == "T1003.001"
+
+
+def test_build_index_reuses_current_index(tmp_path):
+    pytest.importorskip("chromadb")
+    from src.ingest import build_index
+
+    col, built = build_index(chunks(), tmp_path, "test_col", max_chars=80, overlap=10)
+    assert built and col.count() > len(chunks())          # long texts were split
+    _, built_again = build_index(chunks(), tmp_path, "test_col", max_chars=80, overlap=10)
+    assert not built_again
+    _, forced = build_index(chunks(), tmp_path, "test_col", max_chars=80, overlap=10, rebuild=True)
+    assert forced
