@@ -25,6 +25,15 @@ class Step:
     seconds: float = 0.0
 
 
+@dataclass(frozen=True)
+class AgentMessage:
+    """A message passed between agents. Seam C injects into `content` on its way to the recipient."""
+    sender: str            # e.g. "summarizer"
+    recipient: str         # e.g. "orchestrator"
+    content: str
+    provenance: tuple[str, ...] = ()   # sources the sender read to write it, e.g. ("retrieval:T1059#0",)
+
+
 @dataclass
 class AgentState:
     question: str
@@ -32,7 +41,8 @@ class AgentState:
     plan: list[str] = field(default_factory=list)          # step names to run, in order
     hits: list[Hit] = field(default_factory=list)          # retrieved techniques
     tool_results: list[dict] = field(default_factory=list)
-    findings: str = ""                                     # summarizer sub-agent's message
+    messages: list[AgentMessage] = field(default_factory=list)   # inter-agent messages, in order
+    findings: str = ""                                     # content of the summarizer's message
     action: str | None = None                              # final recommended action label
     rationale: str = ""
     steps: list[Step] = field(default_factory=list)        # trace, in execution order

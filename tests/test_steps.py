@@ -58,3 +58,14 @@ def test_summarizer_uses_prompt_file_by_default():
     (system, _), = llm.calls
     assert system == load_prompt("summarizer")
     assert "Do not recommend a final action" in system
+
+
+def test_analyze_emits_an_inter_agent_message_with_provenance():
+    llm = FakeLLM().on("Question:", "- finding")
+    state = AgentState(question="detect lsass dumping")
+    make_retrieve(StubRetriever())(state)
+    make_analyze(Summarizer(llm))(state)
+    (msg,) = state.messages
+    assert (msg.sender, msg.recipient, msg.content) == ("summarizer", "orchestrator", "- finding")
+    assert msg.provenance == ("retrieval:T1003.001#0",)
+    assert state.findings == msg.content
