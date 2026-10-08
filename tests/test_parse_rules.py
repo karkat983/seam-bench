@@ -22,3 +22,24 @@ def test_revoked_relationship_is_ignored():
     # The fixture links Execution Prevention to T1059 only through a revoked relationship.
     text = {c.id: c.text for c in chunks()}["T1059"]
     assert "Mitigations:" not in text
+
+
+def test_ids_have_attack_format_and_match_subtechnique_flag():
+    for c in chunks():
+        assert ATTACK_ID.match(c.id), c.id
+        assert c.is_subtechnique == ("." in c.id)
+
+
+@pytest.fixture(scope="module")
+def real_chunks():
+    path = resolve(load_config(), "stix_bundle")
+    if not path.exists():
+        pytest.skip("ATT&CK bundle not downloaded (python scripts/download_attack.py)")
+    return parse_techniques(load_bundle(path))
+
+
+def test_real_bundle_ids_have_attack_format(real_chunks):
+    bad = [c.id for c in real_chunks if not ATTACK_ID.match(c.id)]
+    assert bad == []
+    assert all(c.is_subtechnique == ("." in c.id) for c in real_chunks)
+    assert len({c.id for c in real_chunks}) == len(real_chunks)
