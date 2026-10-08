@@ -18,3 +18,14 @@ def test_agent_runs_end_to_end_offline():
     assert state.action == "monitor_lsass_access"
     assert [s.name for s in state.steps] == ["retrieve", "lookup", "analyze", "recommend"]
     assert set(state.prompts) == {"summarizer", "recommender"}
+
+
+def test_format_trace_lists_steps_with_sources():
+    from src.app import format_trace
+
+    llm = FakeLLM().on("Actions:", '{"action": "monitor_lsass_access"}')
+    state = build_agent(load_config(), llm=llm, retriever=StubRetriever()).run("q " + "x" * 1000)
+    text = format_trace(state)
+    assert "[1] retrieve  (source: retrieval" in text
+    assert "[4] recommend" in text
+    assert " ..." in text            # the long question is shortened

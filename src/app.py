@@ -36,15 +36,32 @@ def build_agent(cfg: dict | None = None, llm=None, retriever=None) -> Orchestrat
     return Orchestrator(steps, prompts=prompts)
 
 
+def format_trace(state) -> str:
+    """Human-readable trace: one block per step, long text shortened."""
+    def short(text: str, n: int = 300) -> str:
+        text = " ".join(text.split())
+        return text if len(text) <= n else text[:n] + " ..."
+
+    lines = []
+    for i, step in enumerate(state.steps, 1):
+        lines.append(f"[{i}] {step.name}  (source: {step.source}, {step.seconds:.1f}s)")
+        lines.append(f"    in : {short(step.input)}")
+        lines.append(f"    out: {short(step.output)}")
+    return "\n".join(lines)
+
+
 def main() -> None:
     import argparse
 
     parser = argparse.ArgumentParser(description="Ask the security assistant one question.")
     parser.add_argument("question")
     parser.add_argument("--cve", help="CVE ID to look up (otherwise taken from the question)")
+    parser.add_argument("--trace", action="store_true", help="print every step's input and output")
     args = parser.parse_args()
 
     state = build_agent().run(args.question, cve=args.cve)
+    if args.trace:
+        print(format_trace(state))
     print(f"action: {state.action}")
     if state.rationale:
         print(f"why:    {state.rationale}")
