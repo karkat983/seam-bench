@@ -87,3 +87,10 @@ class Orchestrator:
                 state.record(name, "", "", "unrecorded")
             state.steps[-1].seconds = time.perf_counter() - start
         return state
+
+
+if __name__ == "__main__":
+    # `python -m src.agent "question"`: thin entry point; the wiring lives in src/app.py.
+    from src.app import main
+
+    main()
