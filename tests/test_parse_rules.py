@@ -43,3 +43,23 @@ def test_real_bundle_ids_have_attack_format(real_chunks):
     assert bad == []
     assert all(c.is_subtechnique == ("." in c.id) for c in real_chunks)
     assert len({c.id for c in real_chunks}) == len(real_chunks)
+
+
+def test_chunk_sections_appear_in_order():
+    text = {c.id: c.text for c in chunks()}["T1059.001"]
+    order = [
+        "T1059.001: PowerShell",
+        "Adversaries may abuse PowerShell",
+        "Detection strategies:",
+        "Data components:",
+        "Mitigations:",
+    ]
+    positions = [text.index(marker) for marker in order]
+    assert positions == sorted(positions)
+
+
+def test_every_real_chunk_starts_with_id_and_name(real_chunks):
+    for c in real_chunks:
+        assert c.text.startswith(f"{c.id}: {c.name}")
+    with_detection = sum("Detection strategies:" in c.text for c in real_chunks)
+    assert with_detection == len(real_chunks)      # ATT&CK v19.2: every technique has a strategy
