@@ -84,3 +84,12 @@ def test_recommend_offers_the_vocabulary_and_stores_the_parsed_action():
     (_, user), = llm.calls
     assert "- enforce_mfa: Enforce MFA" in user and "- LSASS read by procdump" in user
     assert state.steps[-1].name == "recommend"
+
+
+def test_recommender_uses_prompt_file_by_default():
+    from src.subagents import load_prompt
+
+    llm = FakeLLM()
+    Recommender(llm, {"a": "b"}).recommend("q", "f")
+    (system, _), = llm.calls
+    assert system == load_prompt("recommender")

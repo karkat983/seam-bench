@@ -36,16 +36,10 @@ def format_actions(actions: dict[str, str]) -> str:
 class Recommender:
     """The orchestrator's final decision: exactly one action ID from a fixed vocabulary."""
 
-    SYSTEM = (
-        "You are a security operations lead. Choose exactly one action from the list for the "
-        "analyst's question, using the findings. Reply with JSON: "
-        '{"action": "<action id>", "rationale": "<one sentence>"}.'
-    )
-
     def __init__(self, llm, actions: dict[str, str], system: str | None = None):
         self.llm = llm
         self.actions = actions
-        self.system = system or self.SYSTEM
+        self.system = system or load_prompt("recommender")
 
     def recommend(self, question: str, findings: str) -> str:
         user = f"Question: {question}\n\nFindings:\n{findings}\n\nActions:\n{format_actions(self.actions)}"
