@@ -6,6 +6,7 @@ from src.config import load_config, resolve
 from src.llm import make_client
 from src.parsing import parse_action
 from src.retriever import Retriever
+from src.runlog import append_run
 from src.steps import ToolRegistry, make_analyze, make_lookup, make_recommend, make_retrieve
 from src.subagents import Recommender, Summarizer, prompt_hash
 from src.tools import CveLookup
@@ -57,9 +58,11 @@ def main() -> None:
     parser.add_argument("question")
     parser.add_argument("--cve", help="CVE ID to look up (otherwise taken from the question)")
     parser.add_argument("--trace", action="store_true", help="print every step's input and output")
+    parser.add_argument("--save", default="runs/cli.jsonl", help="JSONL file the run is appended to")
     args = parser.parse_args()
 
     state = build_agent().run(args.question, cve=args.cve)
+    append_run(args.save, state, origin="cli")
     if args.trace:
         print(format_trace(state))
     print(f"action: {state.action}")
