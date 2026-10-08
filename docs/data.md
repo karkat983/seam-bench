@@ -36,3 +36,18 @@ In v19.2 that field is absent on every active technique. Detection guidance now 
 `x-mitre-detection-strategy` objects linked to techniques by `detects` relationships; each
 strategy references analytics, and each analytic lists the data components and log sources it
 needs. Commits 013-014 rebuild per-technique detection text from that graph.
+
+## Retrieval check
+
+`scripts/check_retrieval.py` runs three probe queries against the index (Chroma default
+embedding, all-MiniLM-L6-v2; squared L2 distance, lower is closer). Run on 2026-10-09:
+
+| Query | Expected | Rank | Top hit |
+|-------|----------|------|---------|
+| how do attackers run PowerShell scripts | T1059.001 | 1 | T1059.001 PowerShell (0.635) |
+| credential dumping from LSASS memory | T1003.001 | 1 | T1003.001 LSASS Memory (0.500) |
+| phishing email with malicious attachment | T1566.001 | 1 | T1566.001 Spearphishing Attachment (0.803) |
+
+All three expected techniques rank first. The next hits are sensible neighbours (e.g. LSA
+Secrets and the parent OS Credential Dumping for the LSASS query), so the index is good enough
+to build the agent on. This is a smoke test, not a retrieval benchmark.
