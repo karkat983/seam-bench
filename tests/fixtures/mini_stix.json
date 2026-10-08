@@ -166,6 +166,14 @@
       "relationship_type": "mitigates",
       "source_ref": "course-of-action--00000000-0000-4000-8000-000000000006",
       "target_ref": "attack-pattern--00000000-0000-4000-8000-000000000002"
+    },
+    {
+      "type": "relationship",
+      "id": "relationship--00000000-0000-4000-8000-000000000405",
+      "relationship_type": "mitigates",
+      "revoked": true,
+      "source_ref": "course-of-action--00000000-0000-4000-8000-000000000005",
+      "target_ref": "attack-pattern--00000000-0000-4000-8000-000000000001"
     }
   ]
 }
