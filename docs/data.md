@@ -51,3 +51,35 @@ embedding, all-MiniLM-L6-v2; squared L2 distance, lower is closer). Run on 2026-
 All three expected techniques rank first. The next hits are sensible neighbours (e.g. LSA
 Secrets and the parent OS Credential Dumping for the LSASS query), so the index is good enough
 to build the agent on. This is a smoke test, not a retrieval benchmark.
+
+## Pipeline
+
+```
+scripts/download_attack.py         pinned v19.2 URL -> data/raw/enterprise-attack.json
+        |                          (fails on SHA-256 mismatch)
+        v
+src/ingest.py  parse_techniques    keep active attack-patterns (697 of 858)
+        |      build_graph         detects: detection-strategy -> technique
+        |                          mitigates: course-of-action -> technique
+        |      to_chunk            "T####: name" + cleaned description
+        |                          + detection strategies + data components + mitigations
+        v
+               split_text          <= 1,000 chars per part, 150-char overlap
+        |                          (MiniLM reads ~256 word pieces; longer text is truncated)
+        v
+               build_index         Chroma collection "attack_techniques", IDs T####.####part,
+        |                          metadata: technique_id, name, tactics, platforms, part
+        |                          skipped when the content fingerprint is unchanged
+        v
+src/retriever.py Retriever         top-k techniques; a technique is ranked by its best part;
+                                   each Hit carries provenance "retrieval:<part id>"
+```
+
+| Stage | Output | Size (v19.2) |
+|-------|--------|--------------|
+| download | JSON bundle | 47.9 MB |
+| parse | technique chunks | 697 (222 top-level, 475 sub-techniques) |
+| split | index parts | 1,445 |
+| index | Chroma on disk (`data/chroma`, gitignored) | rebuilt in ~1-2 min on an M3 |
+
+Reproduce with `make data ingest check`.
