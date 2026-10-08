@@ -83,3 +83,10 @@ src/retriever.py Retriever         top-k techniques; a technique is ranked by it
 | index | Chroma on disk (`data/chroma`, gitignored) | rebuilt in ~1-2 min on an M3 |
 
 Reproduce with `make data ingest check`.
+
+## Note: revoked technique IDs
+
+ATT&CK v19 revoked the whole T1562 (Impair Defenses) family; "Disable or Modify Tools" is now
+**T1685**. The attacker's target action (`disable_monitoring_all_hosts`) is mapped to T1685, and a
+test checks that every technique ID in `data/actions.json` exists in the pinned bundle, so a
+future ATT&CK update that revokes an ID fails loudly instead of silently.
