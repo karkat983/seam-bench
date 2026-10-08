@@ -12,6 +12,12 @@ embeddings:
 retrieval:
   k: 5
 
+chunking:
+  # all-MiniLM-L6-v2 reads at most 256 word pieces (~1,000 characters); longer text is
+  # silently truncated, so long techniques are split into overlapping parts.
+  max_chars: 1000
+  overlap_chars: 150
+
 paths:
   stix_bundle: data/raw/enterprise-attack.json
   chroma_dir: data/chroma

@@ -139,6 +139,30 @@ def to_chunk(obj: dict, graph: BundleGraph | None = None) -> Chunk | None:
     )
 
 
+def split_text(text: str, max_chars: int, overlap: int) -> list[str]:
+    """Split text into pieces of at most max_chars, overlapping by about `overlap` chars.
+
+    Cuts prefer a paragraph break, then a sentence end, then a space, so words stay whole.
+    """
+    if max_chars <= overlap:
+        raise ValueError("max_chars must be larger than overlap")
+    pieces, start = [], 0
+    while len(text) - start > max_chars:
+        window = text[start:start + max_chars]
+        cut = max(window.rfind("\n\n"), window.rfind(". ") + 1, 0)
+        if cut < max_chars // 2:
+            cut = window.rfind(" ")
+        if cut <= overlap:
+            cut = max_chars
+        pieces.append(text[start:start + cut].strip())
+        next_start = start + cut - overlap
+        # Restart on a word boundary inside the overlap.
+        space = text.find(" ", next_start)
+        start = space + 1 if 0 <= space < start + cut else next_start
+    pieces.append(text[start:].strip())
+    return [p for p in pieces if p]
+
+
 def parse_techniques(bundle: dict) -> list[Chunk]:
     """Return a chunk for every active attack-pattern in the bundle, sorted by ID."""
     graph = build_graph(bundle)
@@ -152,28 +176,41 @@ def parse_techniques(bundle: dict) -> list[Chunk]:
     return sorted(chunks, key=lambda c: c.id)
 
 
-def build_index(chunks: list[Chunk], chroma_dir: pathlib.Path, collection: str):
-    """(Re)create the collection and add every chunk. Returns the collection."""
+def build_index(
+    chunks: list[Chunk],
+    chroma_dir: pathlib.Path,
+    collection: str,
+    max_chars: int = 1000,
+    overlap: int = 150,
+):
+    """(Re)create the collection and add every chunk, split into parts. Returns the collection."""
     import chromadb  # imported here so parsing works without chromadb installed
+
+    parts = []
+    for c in chunks:
+        for i, text in enumerate(split_text(c.text, max_chars, overlap)):
+            header = f"{c.id}: {c.name} (continued)\n\n" if i else ""
+            parts.append((f"{c.id}#{i}", header + text, c))
 
     client = chromadb.PersistentClient(path=str(chroma_dir))
     if collection in [c.name for c in client.list_collections()]:
         client.delete_collection(collection)
     col = client.create_collection(collection)
-    for i in range(0, len(chunks), BATCH_SIZE):
-        batch = chunks[i:i + BATCH_SIZE]
+    for i in range(0, len(parts), BATCH_SIZE):
+        batch = parts[i:i + BATCH_SIZE]
         col.add(
-            ids=[c.id for c in batch],
-            documents=[c.text for c in batch],
+            ids=[pid for pid, _, _ in batch],
+            documents=[text for _, text, _ in batch],
             metadatas=[
                 {
+                    "technique_id": c.id,
                     "name": c.name,
                     "is_subtechnique": c.is_subtechnique,
                     "stix_id": c.stix_id,
                     "tactics": ",".join(c.tactics),
                     "platforms": ",".join(c.platforms),
                 }
-                for c in batch
+                for _, _, c in batch
             ],
         )
     return col
@@ -184,8 +221,11 @@ def main() -> None:
     chunks = parse_techniques(load_bundle(resolve(cfg, "stix_bundle")))
     subs = sum(c.is_subtechnique for c in chunks)
     print(f"parsed {len(chunks)} techniques ({len(chunks) - subs} top-level, {subs} sub-techniques)")
-    col = build_index(chunks, resolve(cfg, "chroma_dir"), cfg["attack"]["collection"])
-    print(f"indexed {col.count()} chunks into {cfg['attack']['collection']}")
+    col = build_index(
+        chunks, resolve(cfg, "chroma_dir"), cfg["attack"]["collection"],
+        cfg["chunking"]["max_chars"], cfg["chunking"]["overlap_chars"],
+    )
+    print(f"indexed {col.count()} parts from {len(chunks)} techniques into {cfg['attack']['collection']}")
 
 
 if __name__ == "__main__":

@@ -1,6 +1,8 @@
 import pathlib
 
-from src.ingest import attack_id, clean_text, load_bundle, parse_techniques
+import pytest
+
+from src.ingest import attack_id, clean_text, load_bundle, parse_techniques, split_text
 
 FIXTURE = pathlib.Path(__file__).parent / "fixtures" / "mini_stix.json"
 
@@ -65,3 +67,27 @@ def test_clean_text_drops_citations_and_link_targets():
     raw = ("Adversaries may use [PowerShell](https://attack.mitre.org/techniques/T1059/001) "
            "to run code.(Citation: Some Report 2020)  Extra   spaces.\n\n\n\nNext paragraph.")
     assert clean_text(raw) == "Adversaries may use PowerShell to run code. Extra spaces.\n\nNext paragraph."
+
+
+def test_short_text_is_not_split():
+    assert split_text("short text", max_chars=100, overlap=10) == ["short text"]
+
+
+def test_split_respects_max_and_overlaps():
+    text = " ".join(f"Sentence number {i} is here." for i in range(60))
+    pieces = split_text(text, max_chars=200, overlap=40)
+    assert len(pieces) > 1
+    assert all(len(p) <= 200 for p in pieces)
+    for a, b in zip(pieces, pieces[1:]):
+        assert b.split()[0] in a          # the next piece starts inside the previous one
+
+
+def test_split_covers_every_word():
+    text = " ".join(f"w{i}" for i in range(500))
+    pieces = split_text(text, max_chars=120, overlap=20)
+    assert set(" ".join(pieces).split()) == set(text.split())
+
+
+def test_split_rejects_bad_settings():
+    with pytest.raises(ValueError):
+        split_text("abc", max_chars=10, overlap=10)
