@@ -1,5 +1,3 @@
-import pathlib
-
 import pytest
 
 from src.ingest import (
@@ -7,7 +5,7 @@ from src.ingest import (
     technique_of,
 )
 
-FIXTURE = pathlib.Path(__file__).parent / "fixtures" / "mini_stix.json"
+from tests.conftest import MINI_STIX as FIXTURE
 
 
 def chunks():
