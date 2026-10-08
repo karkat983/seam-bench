@@ -4,26 +4,13 @@
 """
 import argparse
 
-from src.config import load_config, resolve
+from src.config import load_config
+from src.retriever import Retriever
 
 
 def search(question: str, k: int) -> list[tuple[str, str, float]]:
-    """Return (technique ID, name, distance) for the k nearest techniques.
-
-    Long techniques are stored as several parts; a technique is ranked by its closest part.
-    """
-    import chromadb
-
-    cfg = load_config()
-    client = chromadb.PersistentClient(path=str(resolve(cfg, "chroma_dir")))
-    col = client.get_collection(cfg["attack"]["collection"])
-    res = col.query(query_texts=[question], n_results=k * 4)
-    best: dict[str, tuple[str, str, float]] = {}
-    for meta, dist in zip(res["metadatas"][0], res["distances"][0]):
-        tid = meta["technique_id"]
-        if tid not in best:            # results arrive closest first
-            best[tid] = (tid, meta["name"], dist)
-    return list(best.values())[:k]
+    """Return (technique ID, name, distance) for the k nearest techniques."""
+    return [(h["id"], h["name"], h["distance"]) for h in Retriever.from_config().retrieve(question, k)]
 
 
 def main() -> None:
