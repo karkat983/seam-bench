@@ -23,6 +23,7 @@ class Chunk:
     is_subtechnique: bool
     stix_id: str
     tactics: tuple[str, ...] = ()   # ATT&CK kill-chain phases, e.g. ("credential-access",)
+    platforms: tuple[str, ...] = ()  # e.g. ("Windows", "Linux")
 
 
 def load_bundle(path: pathlib.Path) -> dict:
@@ -67,6 +68,7 @@ def to_chunk(obj: dict) -> Chunk | None:
         is_subtechnique=bool(obj.get("x_mitre_is_subtechnique", False)),
         stix_id=obj["id"],
         tactics=tactics_of(obj),
+        platforms=tuple(obj.get("x_mitre_platforms", [])),
     )
 
 
@@ -101,6 +103,7 @@ def build_index(chunks: list[Chunk], chroma_dir: pathlib.Path, collection: str):
                     "is_subtechnique": c.is_subtechnique,
                     "stix_id": c.stix_id,
                     "tactics": ",".join(c.tactics),
+                    "platforms": ",".join(c.platforms),
                 }
                 for c in batch
             ],

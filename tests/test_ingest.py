@@ -37,3 +37,8 @@ def test_attack_id_ignores_other_sources():
 def test_tactics_come_from_mitre_attack_kill_chain_only():
     tactics = {c.id: c.tactics for c in chunks()}
     assert tactics == {"T1059": ("execution",), "T1059.001": ("execution",)}
+
+
+def test_platforms_are_kept():
+    platforms = {c.id: c.platforms for c in chunks()}
+    assert platforms == {"T1059": ("Windows", "Linux", "macOS"), "T1059.001": ("Windows",)}
