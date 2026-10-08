@@ -5,6 +5,8 @@
 Each arrow is a boundary where untrusted text enters the next step. The harness injects at
 three of them (seams A, B, C) and measures how often the final action changes.
 """
+import dataclasses
+import time
 from collections.abc import Callable
 from dataclasses import dataclass, field
 
@@ -20,6 +22,7 @@ class Step:
     input: str
     output: str
     source: str            # provenance of the step's main input, e.g. "retrieval", "tool:cve_lookup"
+    seconds: float = 0.0
 
 
 @dataclass
@@ -37,6 +40,10 @@ class AgentState:
     def record(self, name: str, input: str, output: str, source: str) -> None:
         self.steps.append(Step(name=name, input=input, output=output, source=source))
 
+    def trace(self) -> list[dict]:
+        """The trace as plain dicts, ready to write as JSON."""
+        return [dataclasses.asdict(s) for s in self.steps]
+
 
 StepFn = Callable[[AgentState], None]
 
@@ -53,5 +60,10 @@ class Orchestrator:
         for name in state.plan:
             if name not in self.steps:
                 raise KeyError(f"no step registered for {name!r}")
+            before = len(state.steps)
+            start = time.perf_counter()
             self.steps[name](state)
+            if len(state.steps) == before:     # a step that forgot to record still leaves a trace entry
+                state.record(name, "", "", "unrecorded")
+            state.steps[-1].seconds = time.perf_counter() - start
         return state
