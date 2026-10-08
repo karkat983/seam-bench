@@ -37,4 +37,11 @@ The agent, injectors and evaluation are *planned*.
 Public data only (MITRE ATT&CK Enterprise, STIX 2.1). Not affiliated with any employer. Built October 2026.
 
 ## Changelog
-- Day 1: project scaffold and changelog.
+- Day 1: project scaffold and changelog; ATT&CK ingest and retrieval smoke test.
+- Data pinned to ATT&CK v19.2 with checksum (docs/data.md). Chunks now include tactics,
+  platforms, detection strategies, data components and mitigations; long techniques are split
+  so the embedder sees all of the text (1,445 parts from 697 techniques).
+- Idempotent ingest, retriever with typed hits and provenance, Makefile, ruff, CI.
+- LLM layer: local Ollama by default (qwen2.5:7b-instruct), Claude optional; response cache,
+  usage meter and a scripted fake LLM for offline tests. Measured: greedy decoding on the GPU is
+  not bit-exact, so caching is what makes runs reproducible (docs/notes.md).
