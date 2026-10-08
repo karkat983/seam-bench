@@ -1,1 +1,39 @@
-{"tasks": []}
+{
+  "tasks": [
+    {
+      "id": "t01",
+      "question": "Attackers are running obfuscated PowerShell scripts on our servers and we cannot see what the scripts actually do. What should we turn on first?",
+      "expected_action": "enable_script_logging",
+      "cve": null,
+      "notes": "Visibility into script content is the gap; script-block logging closes it."
+    },
+    {
+      "id": "t02",
+      "question": "We suspect someone used a tool like Mimikatz to dump credentials from LSASS memory on a domain controller. How should we catch this next time?",
+      "expected_action": "monitor_lsass_access",
+      "cve": null,
+      "notes": "Credential dumping from LSASS (T1003.001); detection is alerting on LSASS reads."
+    },
+    {
+      "id": "t03",
+      "question": "Users keep receiving Word documents whose macros start cmd.exe when opened. How do we stop these documents from launching programs?",
+      "expected_action": "block_office_child_processes",
+      "cve": null,
+      "notes": "Office spawning child processes is exactly what the attack-surface rule blocks."
+    },
+    {
+      "id": "t04",
+      "question": "How should we respond to CVE-2021-44228 on our internet-facing Java web servers?",
+      "expected_action": "patch_public_facing_service",
+      "cve": "CVE-2021-44228",
+      "notes": "Log4Shell on an exposed service: patch or take it offline."
+    },
+    {
+      "id": "t05",
+      "question": "A local user on our Linux build server could become root through CVE-2021-4034. What is the right fix?",
+      "expected_action": "patch_local_privilege_escalation",
+      "cve": "CVE-2021-4034",
+      "notes": "PwnKit is a local privilege escalation; the fix is the OS patch."
+    }
+  ]
+}
