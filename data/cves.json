@@ -1,0 +1,242 @@
+[
+  {
+    "id": "CVE-2021-44228",
+    "name": "Log4Shell",
+    "product": "Apache Log4j 2",
+    "year": 2021,
+    "summary": "JNDI lookup in logged strings lets a remote attacker load and run code on servers that log attacker-controlled input.",
+    "technique": "T1190"
+  },
+  {
+    "id": "CVE-2017-0144",
+    "name": "EternalBlue",
+    "product": "Microsoft Windows SMBv1",
+    "year": 2017,
+    "summary": "Crafted SMBv1 packets give remote code execution on unpatched Windows hosts; used by WannaCry to spread.",
+    "technique": "T1210"
+  },
+  {
+    "id": "CVE-2021-34527",
+    "name": "PrintNightmare",
+    "product": "Windows Print Spooler",
+    "year": 2021,
+    "summary": "The Print Spooler service lets a user install a malicious driver and run code as SYSTEM.",
+    "technique": "T1068"
+  },
+  {
+    "id": "CVE-2023-23397",
+    "name": "Outlook NTLM leak",
+    "product": "Microsoft Outlook",
+    "year": 2023,
+    "summary": "A crafted reminder makes Outlook connect to an attacker server and send the user's NTLM hash without any click.",
+    "technique": "T1187"
+  },
+  {
+    "id": "CVE-2017-11882",
+    "name": "Equation Editor overflow",
+    "product": "Microsoft Office",
+    "year": 2017,
+    "summary": "A memory corruption bug in the Equation Editor runs code when a user opens a malicious document.",
+    "technique": "T1203"
+  },
+  {
+    "id": "CVE-2019-0708",
+    "name": "BlueKeep",
+    "product": "Windows Remote Desktop Services",
+    "year": 2019,
+    "summary": "Pre-authentication remote code execution in RDP on older Windows versions.",
+    "technique": "T1210"
+  },
+  {
+    "id": "CVE-2020-1472",
+    "name": "Zerologon",
+    "product": "Windows Netlogon",
+    "year": 2020,
+    "summary": "A flaw in Netlogon's cryptography lets an attacker on the network take over a domain controller account.",
+    "technique": "T1210"
+  },
+  {
+    "id": "CVE-2021-26855",
+    "name": "ProxyLogon",
+    "product": "Microsoft Exchange Server",
+    "year": 2021,
+    "summary": "Server-side request forgery in Exchange lets an unauthenticated attacker reach the backend; chained for code execution.",
+    "technique": "T1190"
+  },
+  {
+    "id": "CVE-2014-6271",
+    "name": "Shellshock",
+    "product": "GNU Bash",
+    "year": 2014,
+    "summary": "Bash runs commands appended to function definitions in environment variables, exposed through CGI web scripts.",
+    "technique": "T1190"
+  },
+  {
+    "id": "CVE-2018-13379",
+    "name": "FortiOS path traversal",
+    "product": "Fortinet FortiOS SSL VPN",
+    "year": 2018,
+    "summary": "Path traversal in the SSL VPN portal lets an unauthenticated attacker read system files, including session credentials.",
+    "technique": "T1190"
+  },
+  {
+    "id": "CVE-2022-30190",
+    "name": "Follina",
+    "product": "Microsoft Support Diagnostic Tool",
+    "year": 2022,
+    "summary": "A document can invoke the ms-msdt URL handler to run PowerShell when opened or previewed.",
+    "technique": "T1203"
+  },
+  {
+    "id": "CVE-2023-34362",
+    "name": "MOVEit Transfer SQL injection",
+    "product": "Progress MOVEit Transfer",
+    "year": 2023,
+    "summary": "SQL injection in the web application allowed data theft and web shell deployment at scale.",
+    "technique": "T1190"
+  },
+  {
+    "id": "CVE-2021-40444",
+    "name": "MSHTML remote code execution",
+    "product": "Microsoft MSHTML",
+    "year": 2021,
+    "summary": "A malicious Office document loads an ActiveX control through MSHTML to run code.",
+    "technique": "T1203"
+  },
+  {
+    "id": "CVE-2024-3400",
+    "name": "PAN-OS GlobalProtect command injection",
+    "product": "Palo Alto Networks PAN-OS",
+    "year": 2024,
+    "summary": "Command injection in the GlobalProtect feature gives an unauthenticated attacker root code execution on the firewall.",
+    "technique": "T1190"
+  },
+  {
+    "id": "CVE-2022-26134",
+    "name": "Confluence OGNL injection",
+    "product": "Atlassian Confluence Server",
+    "year": 2022,
+    "summary": "OGNL injection lets an unauthenticated attacker run code on Confluence Server and Data Center.",
+    "technique": "T1190"
+  },
+  {
+    "id": "CVE-2019-19781",
+    "name": "Citrix ADC path traversal",
+    "product": "Citrix ADC and Gateway",
+    "year": 2019,
+    "summary": "Directory traversal leads to unauthenticated remote code execution on the appliance.",
+    "technique": "T1190"
+  },
+  {
+    "id": "CVE-2020-0601",
+    "name": "CurveBall",
+    "product": "Windows CryptoAPI",
+    "year": 2020,
+    "summary": "Improper validation of elliptic-curve certificates lets an attacker spoof code-signing and TLS certificates.",
+    "technique": "T1553.002"
+  },
+  {
+    "id": "CVE-2016-5195",
+    "name": "Dirty COW",
+    "product": "Linux kernel",
+    "year": 2016,
+    "summary": "A race condition in copy-on-write handling lets a local user write to read-only memory and gain root.",
+    "technique": "T1068"
+  },
+  {
+    "id": "CVE-2021-4034",
+    "name": "PwnKit",
+    "product": "polkit pkexec",
+    "year": 2021,
+    "summary": "Memory corruption in pkexec lets any local user become root on most Linux distributions.",
+    "technique": "T1068"
+  },
+  {
+    "id": "CVE-2021-3156",
+    "name": "Baron Samedit",
+    "product": "sudo",
+    "year": 2021,
+    "summary": "A heap overflow in sudo's argument parsing lets a local user gain root without being in sudoers.",
+    "technique": "T1068"
+  },
+  {
+    "id": "CVE-2023-4966",
+    "name": "Citrix Bleed",
+    "product": "Citrix NetScaler ADC and Gateway",
+    "year": 2023,
+    "summary": "A buffer over-read leaks session tokens, letting an attacker hijack authenticated sessions.",
+    "technique": "T1190"
+  },
+  {
+    "id": "CVE-2017-5638",
+    "name": "Struts Jakarta parser RCE",
+    "product": "Apache Struts 2",
+    "year": 2017,
+    "summary": "A crafted Content-Type header triggers OGNL evaluation and remote code execution.",
+    "technique": "T1190"
+  },
+  {
+    "id": "CVE-2018-8174",
+    "name": "Double Kill",
+    "product": "Windows VBScript engine",
+    "year": 2018,
+    "summary": "A use-after-free in VBScript runs code when a user opens a malicious web page or document.",
+    "technique": "T1203"
+  },
+  {
+    "id": "CVE-2020-0688",
+    "name": "Exchange static validation key",
+    "product": "Microsoft Exchange Server",
+    "year": 2020,
+    "summary": "A fixed cryptographic key in the control panel lets an authenticated user run code as SYSTEM.",
+    "technique": "T1190"
+  },
+  {
+    "id": "CVE-2023-20198",
+    "name": "IOS XE web UI privilege escalation",
+    "product": "Cisco IOS XE",
+    "year": 2023,
+    "summary": "The web UI lets an unauthenticated attacker create a privilege-15 account on the device.",
+    "technique": "T1190"
+  },
+  {
+    "id": "CVE-2021-21972",
+    "name": "vCenter plugin upload",
+    "product": "VMware vCenter Server",
+    "year": 2021,
+    "summary": "An unauthenticated file upload in a vSphere Client plugin leads to code execution on vCenter.",
+    "technique": "T1190"
+  },
+  {
+    "id": "CVE-2022-22965",
+    "name": "Spring4Shell",
+    "product": "Spring Framework",
+    "year": 2022,
+    "summary": "Data binding on JDK 9+ lets an attacker write a web shell through crafted request parameters.",
+    "technique": "T1190"
+  },
+  {
+    "id": "CVE-2022-41040",
+    "name": "ProxyNotShell SSRF",
+    "product": "Microsoft Exchange Server",
+    "year": 2022,
+    "summary": "Server-side request forgery used together with CVE-2022-41082 for remote code execution.",
+    "technique": "T1190"
+  },
+  {
+    "id": "CVE-2021-36934",
+    "name": "HiveNightmare",
+    "product": "Windows SAM permissions",
+    "year": 2021,
+    "summary": "Overly permissive access to the SAM and SYSTEM hives lets a local user read credential hashes from shadow copies.",
+    "technique": "T1003.002"
+  },
+  {
+    "id": "CVE-2019-11510",
+    "name": "Pulse Secure file read",
+    "product": "Pulse Connect Secure",
+    "year": 2019,
+    "summary": "Pre-authentication arbitrary file read on the VPN exposes cached plaintext credentials.",
+    "technique": "T1190"
+  }
+]
