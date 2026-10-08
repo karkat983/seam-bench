@@ -10,7 +10,7 @@ from src.retriever import Retriever
 
 def search(question: str, k: int) -> list[tuple[str, str, float]]:
     """Return (technique ID, name, distance) for the k nearest techniques."""
-    return [(h["id"], h["name"], h["distance"]) for h in Retriever.from_config().retrieve(question, k)]
+    return [(h.id, h.name, h.score) for h in Retriever.from_config().retrieve(question, k)]
 
 
 def main() -> None:
