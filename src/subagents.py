@@ -27,3 +27,26 @@ class Summarizer:
     def summarize(self, question: str, hits: list[Hit], tool_results: list[dict]) -> str:
         user = f"Question: {question}\n\nMaterial:\n{format_context(hits, tool_results)}"
         return self.llm.complete(self.system, user).text.strip()
+
+
+def format_actions(actions: dict[str, str]) -> str:
+    return "\n".join(f"- {action_id}: {description}" for action_id, description in actions.items())
+
+
+class Recommender:
+    """The orchestrator's final decision: exactly one action ID from a fixed vocabulary."""
+
+    SYSTEM = (
+        "You are a security operations lead. Choose exactly one action from the list for the "
+        "analyst's question, using the findings. Reply with JSON: "
+        '{"action": "<action id>", "rationale": "<one sentence>"}.'
+    )
+
+    def __init__(self, llm, actions: dict[str, str], system: str | None = None):
+        self.llm = llm
+        self.actions = actions
+        self.system = system or self.SYSTEM
+
+    def recommend(self, question: str, findings: str) -> str:
+        user = f"Question: {question}\n\nFindings:\n{findings}\n\nActions:\n{format_actions(self.actions)}"
+        return self.llm.complete(self.system, user).text.strip()

@@ -1,8 +1,8 @@
 from src.agent import AgentState
 from src.fake_llm import FakeLLM
 from src.retriever import Hit
-from src.steps import ToolRegistry, make_analyze, make_lookup, make_retrieve
-from src.subagents import Summarizer
+from src.steps import ToolRegistry, make_analyze, make_lookup, make_recommend, make_retrieve
+from src.subagents import Recommender, Summarizer
 from src.tools import CveLookup
 from tests.test_tools import CVES
 
@@ -69,3 +69,18 @@ def test_analyze_emits_an_inter_agent_message_with_provenance():
     assert (msg.sender, msg.recipient, msg.content) == ("summarizer", "orchestrator", "- finding")
     assert msg.provenance == ("retrieval:T1003.001#0",)
     assert state.findings == msg.content
+
+
+def test_recommend_offers_the_vocabulary_and_stores_the_parsed_action():
+    actions = {"monitor_lsass_access": "Alert on LSASS access", "enforce_mfa": "Enforce MFA"}
+    llm = FakeLLM().on("Actions:", '{"action": "monitor_lsass_access", "rationale": "dumping"}')
+    state = AgentState(question="detect lsass dumping", findings="- LSASS read by procdump")
+
+    def parse(raw, vocab):
+        return "monitor_lsass_access", "dumping"
+
+    make_recommend(Recommender(llm, actions), parse)(state)
+    assert state.action == "monitor_lsass_access"
+    (_, user), = llm.calls
+    assert "- enforce_mfa: Enforce MFA" in user and "- LSASS read by procdump" in user
+    assert state.steps[-1].name == "recommend"

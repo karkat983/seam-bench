@@ -3,7 +3,7 @@ import json
 
 from src.agent import AgentMessage, AgentState, StepFn
 from src.retriever import Retriever
-from src.subagents import Summarizer
+from src.subagents import Recommender, Summarizer
 from src.tools import find_cve_ids
 
 
@@ -59,3 +59,14 @@ def make_analyze(summarizer: Summarizer) -> StepFn:
         state.record("analyze", "; ".join(sources), received.content, "agent:summarizer")
 
     return analyze
+
+
+def make_recommend(recommender: Recommender, parse) -> StepFn:
+    """The final step: pick one action. `parse` turns the model's reply into an action label."""
+
+    def recommend(state: AgentState) -> None:
+        raw = recommender.recommend(state.question, state.findings)
+        state.action, state.rationale = parse(raw, recommender.actions)
+        state.record("recommend", state.findings, raw, "orchestrator")
+
+    return recommend
