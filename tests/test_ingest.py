@@ -32,3 +32,8 @@ def test_missing_detection_is_omitted():
 def test_attack_id_ignores_other_sources():
     obj = {"external_references": [{"source_name": "capec", "external_id": "CAPEC-1"}]}
     assert attack_id(obj) is None
+
+
+def test_tactics_come_from_mitre_attack_kill_chain_only():
+    tactics = {c.id: c.tactics for c in chunks()}
+    assert tactics == {"T1059": ("execution",), "T1059.001": ("execution",)}

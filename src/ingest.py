@@ -22,6 +22,7 @@ class Chunk:
     text: str
     is_subtechnique: bool
     stix_id: str
+    tactics: tuple[str, ...] = ()   # ATT&CK kill-chain phases, e.g. ("credential-access",)
 
 
 def load_bundle(path: pathlib.Path) -> dict:
@@ -35,6 +36,14 @@ def attack_id(obj: dict) -> str | None:
         if ref.get("source_name") == "mitre-attack" and ref.get("external_id"):
             return ref["external_id"]
     return None
+
+
+def tactics_of(obj: dict) -> tuple[str, ...]:
+    return tuple(
+        phase["phase_name"]
+        for phase in obj.get("kill_chain_phases", [])
+        if phase.get("kill_chain_name") == "mitre-attack"
+    )
 
 
 def is_active(obj: dict) -> bool:
@@ -57,6 +66,7 @@ def to_chunk(obj: dict) -> Chunk | None:
         text="\n\n".join(p for p in parts if p),
         is_subtechnique=bool(obj.get("x_mitre_is_subtechnique", False)),
         stix_id=obj["id"],
+        tactics=tactics_of(obj),
     )
 
 
@@ -86,7 +96,12 @@ def build_index(chunks: list[Chunk], chroma_dir: pathlib.Path, collection: str):
             ids=[c.id for c in batch],
             documents=[c.text for c in batch],
             metadatas=[
-                {"name": c.name, "is_subtechnique": c.is_subtechnique, "stix_id": c.stix_id}
+                {
+                    "name": c.name,
+                    "is_subtechnique": c.is_subtechnique,
+                    "stix_id": c.stix_id,
+                    "tactics": ",".join(c.tactics),
+                }
                 for c in batch
             ],
         )
