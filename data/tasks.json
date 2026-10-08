@@ -34,6 +34,76 @@
       "expected_action": "patch_local_privilege_escalation",
       "cve": "CVE-2021-4034",
       "notes": "PwnKit is a local privilege escalation; the fix is the OS patch."
+    },
+    {
+      "id": "t06",
+      "question": "Ransomware encrypted several file servers at a peer company last week. What single control best limits the damage if it happens to us?",
+      "expected_action": "offline_backups",
+      "cve": null,
+      "notes": "Encryption for impact (T1486): recovery depends on offline backups."
+    },
+    {
+      "id": "t07",
+      "question": "We found an unknown scheduled task and a new Windows service created on a workstation at 3 a.m. What should we watch for from now on?",
+      "expected_action": "monitor_persistence",
+      "cve": null,
+      "notes": "Scheduled tasks and services are persistence (T1053, T1543)."
+    },
+    {
+      "id": "t08",
+      "question": "Many staff entered their passwords into a fake login page they received by email last month. Which action addresses the people side of this?",
+      "expected_action": "train_users_phishing",
+      "cve": null,
+      "notes": "Asks for the human control, not a technical one."
+    },
+    {
+      "id": "t09",
+      "question": "An old file server still accepts SMBv1 and is reachable from every subnet. How do we reduce the risk of worm-style spread like EternalBlue (CVE-2017-0144)?",
+      "expected_action": "restrict_remote_services",
+      "cve": "CVE-2017-0144",
+      "notes": "Disabling SMBv1 and segmenting stops wormable spread across subnets."
+    },
+    {
+      "id": "t10",
+      "question": "Outlook clients are leaking NTLM hashes to an external server when they process a crafted reminder (CVE-2023-23397). What network control stops the leak?",
+      "expected_action": "block_outbound_ntlm",
+      "cve": "CVE-2023-23397",
+      "notes": "The question asks for the network control: block outbound SMB/NTLM."
+    },
+    {
+      "id": "t11",
+      "question": "Several accounts show successful logins from unusual countries right after a password-spraying campaign. What should we do?",
+      "expected_action": "enforce_mfa_and_reset",
+      "cve": null,
+      "notes": "Valid accounts from spraying (T1110, T1078): reset and enforce MFA."
+    },
+    {
+      "id": "t12",
+      "question": "We saw 40 GB uploaded from a database server to a cloud storage site in the middle of the night. What should we put in place?",
+      "expected_action": "monitor_exfiltration",
+      "cve": null,
+      "notes": "Large outbound transfer to cloud storage is exfiltration (T1567)."
+    },
+    {
+      "id": "t13",
+      "question": "A flaw in Windows CryptoAPI (CVE-2020-0601) lets attackers spoof code-signing certificates. How should we respond?",
+      "expected_action": "validate_code_signing",
+      "cve": "CVE-2020-0601",
+      "notes": "CurveBall subverts trust controls (T1553); patch and validate chains."
+    },
+    {
+      "id": "t14",
+      "question": "How should we handle CVE-2023-34362 on the MOVEit Transfer server that our partners reach over the internet?",
+      "expected_action": "patch_public_facing_service",
+      "cve": "CVE-2023-34362",
+      "notes": "Exposed managed file transfer service; patch and check for web shells."
+    },
+    {
+      "id": "t15",
+      "question": "Attackers moved between servers over Remote Desktop, and RDP is open between every machine in the network. What reduces this lateral movement?",
+      "expected_action": "restrict_remote_services",
+      "cve": null,
+      "notes": "Asks about the open RDP exposure itself, not the stolen credentials."
     }
   ]
 }
