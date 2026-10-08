@@ -3,6 +3,7 @@ import json
 
 from src.agent import AgentState, StepFn
 from src.retriever import Retriever
+from src.subagents import Summarizer
 from src.tools import find_cve_ids
 
 
@@ -43,3 +44,14 @@ def make_lookup(registry: ToolRegistry) -> StepFn:
         state.record("lookup", cve, json.dumps(record), "tool:cve_lookup")
 
     return lookup
+
+
+def make_analyze(summarizer: Summarizer) -> StepFn:
+    """Delegates to the summarizer sub-agent; its reply becomes the orchestrator's findings."""
+
+    def analyze(state: AgentState) -> None:
+        state.findings = summarizer.summarize(state.question, state.hits, state.tool_results)
+        sources = [h.source for h in state.hits] + [f"tool:{r['tool']}" for r in state.tool_results]
+        state.record("analyze", "; ".join(sources), state.findings, "agent:summarizer")
+
+    return analyze
