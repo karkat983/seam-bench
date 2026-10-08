@@ -1,11 +1,18 @@
 """Turn the ATT&CK STIX bundle into one text chunk per technique.
 
 Each chunk holds the technique ID, name, description and detection text.
-Revoked and deprecated objects are skipped.
+Revoked and deprecated objects are skipped. Chunks are embedded with
+Chroma's built-in local model and stored in a persistent collection.
+
+    python -m src.ingest
 """
 import json
 import pathlib
 from dataclasses import dataclass
+
+from src.config import load_config, resolve
+
+BATCH_SIZE = 500
 
 
 @dataclass(frozen=True)
@@ -63,3 +70,37 @@ def parse_techniques(bundle: dict) -> list[Chunk]:
         if chunk is not None:
             chunks.append(chunk)
     return sorted(chunks, key=lambda c: c.id)
+
+
+def build_index(chunks: list[Chunk], chroma_dir: pathlib.Path, collection: str):
+    """(Re)create the collection and add every chunk. Returns the collection."""
+    import chromadb  # imported here so parsing works without chromadb installed
+
+    client = chromadb.PersistentClient(path=str(chroma_dir))
+    if collection in [c.name for c in client.list_collections()]:
+        client.delete_collection(collection)
+    col = client.create_collection(collection)
+    for i in range(0, len(chunks), BATCH_SIZE):
+        batch = chunks[i:i + BATCH_SIZE]
+        col.add(
+            ids=[c.id for c in batch],
+            documents=[c.text for c in batch],
+            metadatas=[
+                {"name": c.name, "is_subtechnique": c.is_subtechnique, "stix_id": c.stix_id}
+                for c in batch
+            ],
+        )
+    return col
+
+
+def main() -> None:
+    cfg = load_config()
+    chunks = parse_techniques(load_bundle(resolve(cfg, "stix_bundle")))
+    subs = sum(c.is_subtechnique for c in chunks)
+    print(f"parsed {len(chunks)} techniques ({len(chunks) - subs} top-level, {subs} sub-techniques)")
+    col = build_index(chunks, resolve(cfg, "chroma_dir"), cfg["attack"]["collection"])
+    print(f"indexed {col.count()} chunks into {cfg['attack']['collection']}")
+
+
+if __name__ == "__main__":
+    main()
