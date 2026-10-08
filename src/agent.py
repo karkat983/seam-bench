@@ -5,9 +5,12 @@
 Each arrow is a boundary where untrusted text enters the next step. The harness injects at
 three of them (seams A, B, C) and measures how often the final action changes.
 """
+from collections.abc import Callable
 from dataclasses import dataclass, field
 
 from src.retriever import Hit
+
+DEFAULT_PLAN = ["retrieve", "analyze", "recommend"]
 
 
 @dataclass
@@ -33,3 +36,22 @@ class AgentState:
 
     def record(self, name: str, input: str, output: str, source: str) -> None:
         self.steps.append(Step(name=name, input=input, output=output, source=source))
+
+
+StepFn = Callable[[AgentState], None]
+
+
+class Orchestrator:
+    """Runs the planned steps in order over one AgentState."""
+
+    def __init__(self, steps: dict[str, StepFn], plan: list[str] | None = None):
+        self.steps = steps
+        self.plan = plan or list(DEFAULT_PLAN)
+
+    def run(self, question: str, cve: str | None = None) -> AgentState:
+        state = AgentState(question=question, cve=cve, plan=list(self.plan))
+        for name in state.plan:
+            if name not in self.steps:
+                raise KeyError(f"no step registered for {name!r}")
+            self.steps[name](state)
+        return state
