@@ -3,7 +3,8 @@ import pathlib
 import pytest
 
 from src.ingest import (
-    attack_id, clean_text, load_bundle, parse_techniques, part_id, split_text, technique_of,
+    attack_id, clean_text, ingest_stats, load_bundle, parse_techniques, part_id, split_text,
+    technique_of,
 )
 
 FIXTURE = pathlib.Path(__file__).parent / "fixtures" / "mini_stix.json"
@@ -110,3 +111,8 @@ def test_build_index_reuses_current_index(tmp_path):
     assert not built_again
     _, forced = build_index(chunks(), tmp_path, "test_col", max_chars=80, overlap=10, rebuild=True)
     assert forced
+
+
+def test_ingest_stats_counts_kept_and_skipped():
+    stats = ingest_stats(load_bundle(FIXTURE))
+    assert stats == {"attack_patterns": 4, "revoked": 1, "deprecated": 1, "no_attack_id": 0, "kept": 2}

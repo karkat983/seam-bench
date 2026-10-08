@@ -176,6 +176,24 @@ def split_text(text: str, max_chars: int, overlap: int) -> list[str]:
     return [p for p in pieces if p]
 
 
+def ingest_stats(bundle: dict) -> dict[str, int]:
+    """Counts of attack-patterns kept and skipped, for the ingest log."""
+    stats = {"attack_patterns": 0, "revoked": 0, "deprecated": 0, "no_attack_id": 0, "kept": 0}
+    for obj in bundle.get("objects", []):
+        if obj.get("type") != "attack-pattern":
+            continue
+        stats["attack_patterns"] += 1
+        if obj.get("revoked", False):
+            stats["revoked"] += 1
+        elif obj.get("x_mitre_deprecated", False):
+            stats["deprecated"] += 1
+        elif attack_id(obj) is None:
+            stats["no_attack_id"] += 1
+        else:
+            stats["kept"] += 1
+    return stats
+
+
 def parse_techniques(bundle: dict) -> list[Chunk]:
     """Return a chunk for every active attack-pattern in the bundle, sorted by ID."""
     graph = build_graph(bundle)
@@ -258,7 +276,14 @@ def main() -> None:
     args = parser.parse_args()
 
     cfg = load_config()
-    chunks = parse_techniques(load_bundle(resolve(cfg, "stix_bundle")))
+    bundle = load_bundle(resolve(cfg, "stix_bundle"))
+    stats = ingest_stats(bundle)
+    print(
+        f"attack-patterns: {stats['attack_patterns']} "
+        f"(skipped {stats['revoked']} revoked, {stats['deprecated']} deprecated, "
+        f"{stats['no_attack_id']} without ATT&CK ID)"
+    )
+    chunks = parse_techniques(bundle)
     if args.limit is not None:
         chunks = chunks[:args.limit]
     subs = sum(c.is_subtechnique for c in chunks)
