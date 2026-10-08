@@ -7,11 +7,11 @@ The bundle is large (~40 MB) and is gitignored. Run this once:
 import argparse
 import hashlib
 import pathlib
+import sys
 import urllib.request
 
-import yaml
-
-ROOT = pathlib.Path(__file__).resolve().parent.parent
+sys.path.insert(0, str(pathlib.Path(__file__).resolve().parent.parent))
+from src.config import load_config, resolve  # noqa: E402
 
 
 def download(url: str, dest: pathlib.Path) -> str:
@@ -28,10 +28,10 @@ def download(url: str, dest: pathlib.Path) -> str:
 
 
 def main() -> None:
-    cfg = yaml.safe_load((ROOT / "config.yaml").read_text())
+    cfg = load_config()
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--url", default=cfg["attack"]["stix_url"])
-    parser.add_argument("--out", default=str(ROOT / cfg["paths"]["stix_bundle"]))
+    parser.add_argument("--out", default=str(resolve(cfg, "stix_bundle")))
     args = parser.parse_args()
 
     dest = pathlib.Path(args.out)
