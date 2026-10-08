@@ -30,6 +30,7 @@ paths:
   chroma_dir: data/chroma
   llm_cache: data/cache
   tasks: data/tasks.json
+  cves: data/cves.json
 
 attack:
   # Pinned to a tagged release so every run indexes the same data.
