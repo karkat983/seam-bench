@@ -38,6 +38,9 @@ def main() -> None:
     digest = download(args.url, dest)
     print(f"saved {dest} ({dest.stat().st_size:,} bytes)")
     print(f"sha256 {digest}")
+    expected = cfg["attack"].get("stix_sha256")
+    if args.url == cfg["attack"]["stix_url"] and expected and digest != expected:
+        raise SystemExit(f"checksum mismatch: expected {expected}")
 
 
 if __name__ == "__main__":
