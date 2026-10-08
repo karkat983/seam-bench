@@ -3,3 +3,4 @@ pyyaml>=6.0
 python-dotenv>=1.0
 pytest>=8.0
 ruff>=0.6
+anthropic>=0.70  # optional: only for llm.provider: anthropic
