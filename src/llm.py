@@ -21,17 +21,32 @@ class LLMResponse:
 class OllamaClient:
     """Local models via Ollama's /api/chat endpoint (https://github.com/ollama/ollama)."""
 
-    def __init__(self, model: str, host: str = "http://localhost:11434", max_tokens: int = 512):
+    def __init__(
+        self,
+        model: str,
+        host: str = "http://localhost:11434",
+        max_tokens: int = 512,
+        temperature: float = 0.0,
+        seed: int | None = 7,
+    ):
         self.model = model
         self.host = os.environ.get("OLLAMA_HOST", host).rstrip("/")
         self.max_tokens = max_tokens
+        self.temperature = temperature
+        self.seed = seed
+
+    def options(self) -> dict:
+        opts = {"num_predict": self.max_tokens, "temperature": self.temperature}
+        if self.seed is not None:
+            opts["seed"] = self.seed
+        return opts
 
     def complete(self, system: str, user: str) -> LLMResponse:
         body = {
             "model": self.model,
             "stream": False,
             "messages": [{"role": "system", "content": system}, {"role": "user", "content": user}],
-            "options": {"num_predict": self.max_tokens},
+            "options": self.options(),
         }
         req = urllib.request.Request(
             f"{self.host}/api/chat",
@@ -50,6 +65,9 @@ class OllamaClient:
 
 class AnthropicClient:
     """Claude via the official Anthropic SDK (only imported when this provider is selected).
+
+    Claude Opus 5.5 accepts no sampling parameters (temperature/seed return a 400), so runs on
+    this provider are not bit-for-bit repeatable; the response cache makes re-scoring exact.
 
     Server-side refusal fallbacks are on: if the requested model declines, the API re-runs the
     request on a fallback model in the same call. `LLMResponse.model` records which model
@@ -89,7 +107,9 @@ def make_client(llm_cfg: dict):
     max_tokens = llm_cfg.get("max_tokens", 512)
     if provider == "ollama":
         host = llm_cfg.get("ollama_host", "http://localhost:11434")
-        return OllamaClient(llm_cfg["model"], host, max_tokens)
+        return OllamaClient(
+            llm_cfg["model"], host, max_tokens, llm_cfg.get("temperature", 0.0), llm_cfg.get("seed", 7)
+        )
     if provider == "anthropic":
         model = llm_cfg.get("anthropic_model", "claude-opus-5-5")
         return AnthropicClient(model, max_tokens, llm_cfg.get("anthropic_effort", "medium"))
