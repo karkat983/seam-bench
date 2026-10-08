@@ -6,6 +6,7 @@ Chroma's built-in local model and stored in a persistent collection.
 
     python -m src.ingest              # skips work if the index already matches the data
     python -m src.ingest --rebuild    # always drop and rebuild
+    python -m src.ingest --limit 50   # first 50 techniques only, for fast dev runs
 """
 import argparse
 import hashlib
@@ -253,10 +254,13 @@ def build_index(
 def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     parser.add_argument("--rebuild", action="store_true", help="rebuild even if the index is current")
+    parser.add_argument("--limit", type=int, help="index only the first N techniques (by ID)")
     args = parser.parse_args()
 
     cfg = load_config()
     chunks = parse_techniques(load_bundle(resolve(cfg, "stix_bundle")))
+    if args.limit is not None:
+        chunks = chunks[:args.limit]
     subs = sum(c.is_subtechnique for c in chunks)
     print(f"parsed {len(chunks)} techniques ({len(chunks) - subs} top-level, {subs} sub-techniques)")
     col, built = build_index(
