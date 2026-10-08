@@ -36,3 +36,13 @@ def test_every_step_leaves_a_timed_trace_entry():
                         "seconds": trace[0]["seconds"]}
     assert trace[1]["source"] == "unrecorded"
     assert all(t["seconds"] >= 0 for t in trace)
+
+
+def test_prompt_hashes_are_carried_into_every_run():
+    from src.subagents import load_prompt, prompt_hash
+
+    hashes = {name: prompt_hash(load_prompt(name)) for name in ("summarizer", "recommender")}
+    state = Orchestrator({"recommend": lambda s: None}, plan=["recommend"], prompts=hashes).run("q")
+    assert state.prompts == hashes
+    assert all(len(h) == 12 for h in hashes.values())
+    assert prompt_hash("a") != prompt_hash("b")

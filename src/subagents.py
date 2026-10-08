@@ -1,4 +1,5 @@
 """Sub-agents: LLM workers the orchestrator delegates to. Their messages are seam C."""
+import hashlib
 import json
 import pathlib
 
@@ -9,6 +10,11 @@ PROMPTS = pathlib.Path(__file__).resolve().parent.parent / "prompts"
 
 def load_prompt(name: str) -> str:
     return (PROMPTS / f"{name}.txt").read_text().strip()
+
+
+def prompt_hash(text: str) -> str:
+    """Short content hash, recorded in every trace so a result can be tied to the exact prompt."""
+    return hashlib.sha256(text.encode()).hexdigest()[:12]
 
 
 def format_context(hits: list[Hit], tool_results: list[dict]) -> str:

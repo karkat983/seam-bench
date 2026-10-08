@@ -46,6 +46,7 @@ class AgentState:
     action: str | None = None                              # final recommended action label
     rationale: str = ""
     steps: list[Step] = field(default_factory=list)        # trace, in execution order
+    prompts: dict[str, str] = field(default_factory=dict)  # prompt name -> content hash used
 
     def record(self, name: str, input: str, output: str, source: str) -> None:
         self.steps.append(Step(name=name, input=input, output=output, source=source))
@@ -68,12 +69,14 @@ StepFn = Callable[[AgentState], None]
 class Orchestrator:
     """Runs the planned steps in order over one AgentState."""
 
-    def __init__(self, steps: dict[str, StepFn], plan: list[str] | None = None):
+    def __init__(self, steps: dict[str, StepFn], plan: list[str] | None = None,
+                 prompts: dict[str, str] | None = None):
         self.steps = steps
         self.plan = plan or list(DEFAULT_PLAN)
+        self.prompts = prompts or {}
 
     def run(self, question: str, cve: str | None = None) -> AgentState:
-        state = AgentState(question=question, cve=cve, plan=list(self.plan))
+        state = AgentState(question=question, cve=cve, plan=list(self.plan), prompts=dict(self.prompts))
         for name in state.plan:
             if name not in self.steps:
                 raise KeyError(f"no step registered for {name!r}")
