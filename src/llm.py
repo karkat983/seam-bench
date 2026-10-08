@@ -113,4 +113,8 @@ def make_client(llm_cfg: dict):
     if provider == "anthropic":
         model = llm_cfg.get("anthropic_model", "claude-opus-5-5")
         return AnthropicClient(model, max_tokens, llm_cfg.get("anthropic_effort", "medium"))
+    if provider == "fake":
+        from src.fake_llm import FakeLLM
+
+        return FakeLLM()
     raise ValueError(f"unknown llm provider: {provider}")
