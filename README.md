@@ -20,7 +20,15 @@ Agents that read retrieved documents, tool outputs, and other agents' messages t
 | Utility cost | — |
 
 ## Run it
-*Planned.*
+```bash
+python3 -m venv .venv && source .venv/bin/activate
+pip install -r requirements.txt
+python scripts/download_attack.py      # ~40 MB, into data/raw/ (gitignored)
+python -m src.ingest                   # builds the local Chroma index
+python -m src.query "how do attackers run PowerShell scripts"
+pytest
+```
+The agent, injectors and evaluation are *planned*.
 
 ## What I learned
 *Planned.*
