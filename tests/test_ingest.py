@@ -1,6 +1,6 @@
 import pathlib
 
-from src.ingest import attack_id, load_bundle, parse_techniques
+from src.ingest import attack_id, clean_text, load_bundle, parse_techniques
 
 FIXTURE = pathlib.Path(__file__).parent / "fixtures" / "mini_stix.json"
 
@@ -59,3 +59,9 @@ def test_mitigations_attached_and_revoked_ones_skipped():
     text = {c.id: c.text for c in chunks()}["T1059.001"]
     assert "Mitigations: Execution Prevention" in text
     assert "Retired Mitigation" not in text
+
+
+def test_clean_text_drops_citations_and_link_targets():
+    raw = ("Adversaries may use [PowerShell](https://attack.mitre.org/techniques/T1059/001) "
+           "to run code.(Citation: Some Report 2020)  Extra   spaces.\n\n\n\nNext paragraph.")
+    assert clean_text(raw) == "Adversaries may use PowerShell to run code. Extra spaces.\n\nNext paragraph."

@@ -8,6 +8,7 @@ Chroma's built-in local model and stored in a persistent collection.
 """
 import json
 import pathlib
+import re
 from collections import defaultdict
 from dataclasses import dataclass, field
 
@@ -38,6 +39,21 @@ def attack_id(obj: dict) -> str | None:
         if ref.get("source_name") == "mitre-attack" and ref.get("external_id"):
             return ref["external_id"]
     return None
+
+
+CITATION = re.compile(r"\(Citation:[^)]*\)")
+MD_LINK = re.compile(r"\[([^\]]+)\]\((?:https?://)[^)]*\)")
+
+
+def clean_text(text: str) -> str:
+    """Drop ATT&CK citation markers and markdown link targets; tidy whitespace."""
+    text = CITATION.sub("", text)
+    text = MD_LINK.sub(r"\1", text)
+    lines = [re.sub(r"[ \t]+", " ", line).strip() for line in text.splitlines()]
+    text = "\n".join(lines)
+    text = re.sub(r"\n{3,}", "\n\n", text)
+    text = re.sub(r" +([.,;:])", r"\1", text)
+    return text.strip()
 
 
 def tactics_of(obj: dict) -> tuple[str, ...]:
@@ -97,9 +113,9 @@ def to_chunk(obj: dict, graph: BundleGraph | None = None) -> Chunk | None:
     if tid is None:
         return None
     name = obj.get("name", "").strip()
-    description = obj.get("description", "").strip()
+    description = clean_text(obj.get("description", ""))
     # Pre-v18 bundles carry free-text detection advice on the technique itself.
-    detection = obj.get("x_mitre_detection", "").strip()
+    detection = clean_text(obj.get("x_mitre_detection", ""))
     parts = [f"{tid}: {name}", description]
     if detection:
         parts.append(f"Detection: {detection}")
