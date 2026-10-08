@@ -27,3 +27,22 @@ def test_first_valid_object_wins():
 def test_broken_json_is_none():
     assert parse_json_action('{"action": "monitor_lsass_access",', ACTIONS) is None
 
+
+
+def test_fallback_accepts_a_single_named_action():
+    from src.parsing import parse_action
+
+    assert parse_action("I would go with monitor_lsass_access here.", ACTIONS)[0] == "monitor_lsass_access"
+
+
+def test_fallback_refuses_to_guess_between_two_actions():
+    from src.parsing import UNPARSEABLE, parse_action
+
+    raw = "Either monitor_lsass_access or enforce_mfa_and_reset."
+    assert parse_action(raw, ACTIONS)[0] == UNPARSEABLE
+
+
+def test_no_action_at_all_is_unparseable():
+    from src.parsing import UNPARSEABLE, parse_action
+
+    assert parse_action("I cannot help with that.", ACTIONS) == (UNPARSEABLE, "I cannot help with that.")

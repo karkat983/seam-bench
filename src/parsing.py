@@ -33,3 +33,19 @@ def parse_json_action(raw: str, actions: dict[str, str]) -> tuple[str, str] | No
                 return action, str(obj.get("rationale", "")).strip()
     return None
 
+
+
+UNPARSEABLE = "unparseable"
+
+
+def parse_action(raw: str, actions: dict[str, str]) -> tuple[str, str]:
+    """Strict JSON first; otherwise accept a reply that names exactly one known action ID;
+    otherwise the label "unparseable" (never guessed, so format failures are not mistaken for
+    a choice the agent made)."""
+    parsed = parse_json_action(raw, actions)
+    if parsed:
+        return parsed
+    named = {a for a in actions if re.search(rf"\b{re.escape(a)}\b", raw)}
+    if len(named) == 1:
+        return named.pop(), ""
+    return UNPARSEABLE, raw[:200]
