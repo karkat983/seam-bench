@@ -1,0 +1,22 @@
+# All tunable values live here so a reader can swap them without touching code.
+
+llm:
+  provider: anthropic           # any chat model with an API works
+  model: claude-haiku-5-5       # used for the agent and for scoring
+  temperature: 0
+
+embeddings:
+  # Chroma's built-in local model (all-MiniLM-L6-v2, ONNX). No API key, no cost.
+  model: chroma-default
+
+retrieval:
+  k: 5
+
+paths:
+  stix_bundle: data/raw/enterprise-attack.json
+  chroma_dir: data/chroma
+  tasks: data/tasks.json
+
+attack:
+  stix_url: https://raw.githubusercontent.com/mitre/cti/master/enterprise-attack/enterprise-attack.json
+  collection: attack_techniques
