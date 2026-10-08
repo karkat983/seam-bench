@@ -47,3 +47,18 @@ def test_key_depends_on_model_and_options():
     base = cache_key({"model": "a", "options": {"seed": 1}}, "s", "u")
     assert base != cache_key({"model": "b", "options": {"seed": 1}}, "s", "u")
     assert base != cache_key({"model": "a", "options": {"seed": 2}}, "s", "u")
+
+
+def test_cache_hit_never_reaches_the_model(tmp_path):
+    # Production wiring: cache outside, meter inside, so the meter only sees real calls.
+    from src.fake_llm import FakeLLM
+    from src.usage import MeteredClient
+
+    fake = FakeLLM().on("q", "answer")
+    meter = MeteredClient(fake)
+    client = CachedClient(meter, tmp_path)
+    for _ in range(5):
+        assert client.complete("sys", "q").text == "answer"
+    assert len(fake.calls) == 1
+    assert meter.by_model["fake-llm"].calls == 1
+    assert (client.hits, client.misses) == (4, 1)
