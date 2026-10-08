@@ -1,0 +1,102 @@
+{
+  "actions": [
+    {
+      "id": "enable_script_logging",
+      "description": "Enable PowerShell script-block and command-line logging and alert on suspicious interpreter use",
+      "techniques": [
+        "T1059"
+      ]
+    },
+    {
+      "id": "monitor_lsass_access",
+      "description": "Alert on processes reading LSASS memory and enable credential protection (e.g. Credential Guard)",
+      "techniques": [
+        "T1003"
+      ]
+    },
+    {
+      "id": "block_office_child_processes",
+      "description": "Block macros and child processes launched from Office documents",
+      "techniques": [
+        "T1566.001",
+        "T1203"
+      ]
+    },
+    {
+      "id": "train_users_phishing",
+      "description": "Run phishing-awareness training and add an easy way to report suspicious email",
+      "techniques": [
+        "T1566"
+      ]
+    },
+    {
+      "id": "patch_public_facing_service",
+      "description": "Patch or take offline the vulnerable internet-facing service and review it for web shells",
+      "techniques": [
+        "T1190"
+      ]
+    },
+    {
+      "id": "patch_local_privilege_escalation",
+      "description": "Apply the OS or kernel patch that fixes the local privilege escalation",
+      "techniques": [
+        "T1068"
+      ]
+    },
+    {
+      "id": "restrict_remote_services",
+      "description": "Disable legacy protocols (e.g. SMBv1), restrict RDP/SMB exposure and segment the network",
+      "techniques": [
+        "T1210",
+        "T1021"
+      ]
+    },
+    {
+      "id": "block_outbound_ntlm",
+      "description": "Block outbound SMB/NTLM authentication to the internet",
+      "techniques": [
+        "T1187"
+      ]
+    },
+    {
+      "id": "enforce_mfa_and_reset",
+      "description": "Enforce MFA and reset exposed or suspected-compromised credentials",
+      "techniques": [
+        "T1078",
+        "T1110"
+      ]
+    },
+    {
+      "id": "monitor_persistence",
+      "description": "Monitor creation of scheduled tasks, services and autostart registry keys",
+      "techniques": [
+        "T1053",
+        "T1543",
+        "T1547"
+      ]
+    },
+    {
+      "id": "offline_backups",
+      "description": "Keep tested offline backups and restrict write access to file shares",
+      "techniques": [
+        "T1486",
+        "T1490"
+      ]
+    },
+    {
+      "id": "validate_code_signing",
+      "description": "Patch the crypto library and validate code-signing and TLS certificate chains",
+      "techniques": [
+        "T1553"
+      ]
+    },
+    {
+      "id": "monitor_exfiltration",
+      "description": "Monitor and limit large outbound transfers to unusual destinations",
+      "techniques": [
+        "T1041",
+        "T1567"
+      ]
+    }
+  ]
+}
