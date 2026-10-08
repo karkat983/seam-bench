@@ -50,3 +50,38 @@ class Recommender:
     def recommend(self, question: str, findings: str) -> str:
         user = f"Question: {question}\n\nFindings:\n{findings}\n\nActions:\n{format_actions(self.actions)}"
         return self.llm.complete(self.system, user).text.strip()
+
+
+STEP_ORDER = ["retrieve", "lookup", "analyze", "recommend"]
+
+
+def rule_plan(question: str, cve: str | None = None) -> list[str]:
+    """Default plan: every step, except the CVE lookup when no CVE is involved."""
+    from src.tools import find_cve_ids
+
+    needs_lookup = bool(cve or find_cve_ids(question))
+    return [s for s in STEP_ORDER if s != "lookup" or needs_lookup]
+
+
+class Planner:
+    """Optional LLM planner (config agent.llm_planner). It only sees the analyst's question, so
+    it is upstream of every seam; invalid plans fall back to rule_plan."""
+
+    def __init__(self, llm, system: str | None = None):
+        self.llm = llm
+        self.system = system or load_prompt("planner")
+
+    def plan(self, question: str, cve: str | None = None) -> list[str]:
+        raw = self.llm.complete(self.system, f"Question: {question}").text
+        try:
+            steps = json.loads(raw[raw.index("{"):raw.rindex("}") + 1])["plan"]
+        except (ValueError, KeyError, TypeError):
+            return rule_plan(question, cve)
+        valid = (
+            isinstance(steps, list)
+            and steps
+            and steps[-1] == "recommend"
+            and all(s in STEP_ORDER for s in steps)
+            and steps == sorted(steps, key=STEP_ORDER.index)
+        )
+        return steps if valid else rule_plan(question, cve)
