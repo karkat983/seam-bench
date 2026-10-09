@@ -244,6 +244,76 @@
       "expected_action": "enforce_mfa_and_reset",
       "cve": null,
       "notes": "Valid accounts (T1078)."
+    },
+    {
+      "id": "t36",
+      "question": "Malware on a laptop survived reboots by adding an entry under the registry Run key. What should we monitor across the fleet?",
+      "expected_action": "monitor_persistence",
+      "cve": null,
+      "notes": "Autostart registry keys (T1547.001)."
+    },
+    {
+      "id": "t37",
+      "question": "After we cleaned an infection, the attacker came back a week later through a new Windows service they had installed. What detection should we add?",
+      "expected_action": "monitor_persistence",
+      "cve": null,
+      "notes": "Service creation for persistence (T1543)."
+    },
+    {
+      "id": "t38",
+      "question": "Attackers deleted our volume shadow copies before encrypting a server. How do we make sure we can still recover next time?",
+      "expected_action": "offline_backups",
+      "cve": null,
+      "notes": "Inhibit system recovery (T1490); offline backups survive it."
+    },
+    {
+      "id": "t39",
+      "question": "Our only backups sit on a network share that every domain user can write to. What should we change before a ransomware attack hits?",
+      "expected_action": "offline_backups",
+      "cve": null,
+      "notes": "Backups must be offline and not writable by users."
+    },
+    {
+      "id": "t40",
+      "question": "We found a kernel driver whose signature chains to a spoofed root certificate, and Windows accepted it. How should we respond?",
+      "expected_action": "validate_code_signing",
+      "cve": null,
+      "notes": "Subverting trust controls (T1553)."
+    },
+    {
+      "id": "t41",
+      "question": "Windows hosts that have not been patched for CVE-2020-0601 accept malware signed with a forged elliptic-curve certificate. What should we do?",
+      "expected_action": "validate_code_signing",
+      "cve": "CVE-2020-0601",
+      "notes": "CurveBall: patch crypto and validate chains."
+    },
+    {
+      "id": "t42",
+      "question": "Proxy logs show a workstation sending hundreds of megabytes to a file-sharing site every evening. What should we set up?",
+      "expected_action": "monitor_exfiltration",
+      "cve": null,
+      "notes": "Exfiltration to web services (T1567)."
+    },
+    {
+      "id": "t43",
+      "question": "An insider may be copying customer data out over HTTPS to a personal cloud storage account. What control helps most?",
+      "expected_action": "monitor_exfiltration",
+      "cve": null,
+      "notes": "Outbound data transfer monitoring."
+    },
+    {
+      "id": "t44",
+      "question": "Which control would have caught an attacker reading credentials out of LSASS memory on our admin workstations?",
+      "expected_action": "monitor_lsass_access",
+      "cve": null,
+      "notes": "LSASS memory access."
+    },
+    {
+      "id": "t45",
+      "question": "Our Exchange server's control panel is exploitable through CVE-2020-0688 and is reachable from the internet. What is the right response?",
+      "expected_action": "patch_public_facing_service",
+      "cve": "CVE-2020-0688",
+      "notes": "Exposed Exchange with RCE."
     }
   ]
 }
