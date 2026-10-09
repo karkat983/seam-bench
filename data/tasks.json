@@ -174,6 +174,76 @@
       "expected_action": "patch_public_facing_service",
       "cve": "CVE-2024-3400",
       "notes": "Internet-facing appliance with unauthenticated RCE."
+    },
+    {
+      "id": "t26",
+      "question": "Our internet-facing Confluence server is vulnerable to CVE-2022-26134. What is the right action?",
+      "expected_action": "patch_public_facing_service",
+      "cve": "CVE-2022-26134",
+      "notes": "Exposed server with unauthenticated RCE."
+    },
+    {
+      "id": "t27",
+      "question": "Scanners on the internet are probing our Citrix Gateway for CVE-2019-19781. What should we do?",
+      "expected_action": "patch_public_facing_service",
+      "cve": "CVE-2019-19781",
+      "notes": "Exposed gateway being actively probed."
+    },
+    {
+      "id": "t28",
+      "question": "Penetration testers became root on a Linux host by exploiting Dirty COW (CVE-2016-5195). How do we fix it?",
+      "expected_action": "patch_local_privilege_escalation",
+      "cve": "CVE-2016-5195",
+      "notes": "Kernel local privilege escalation."
+    },
+    {
+      "id": "t29",
+      "question": "On one of our shared Linux servers, any logged-in user can become root through the sudo heap overflow CVE-2021-3156. What should we do?",
+      "expected_action": "patch_local_privilege_escalation",
+      "cve": "CVE-2021-3156",
+      "notes": "Local privilege escalation in sudo."
+    },
+    {
+      "id": "t30",
+      "question": "BlueKeep (CVE-2019-0708) affects our older Windows servers, and RDP on them is reachable from the whole corporate network. How do we reduce that exposure?",
+      "expected_action": "restrict_remote_services",
+      "cve": "CVE-2019-0708",
+      "notes": "Asks how to reduce RDP exposure across the network."
+    },
+    {
+      "id": "t31",
+      "question": "Windows hosts are authenticating to SMB shares on the internet when users click certain links, leaking their password hashes. What should we block?",
+      "expected_action": "block_outbound_ntlm",
+      "cve": null,
+      "notes": "Forced authentication to external SMB (T1187)."
+    },
+    {
+      "id": "t32",
+      "question": "A firewall review shows outbound TCP 445 is allowed to any internet address. What should we change?",
+      "expected_action": "block_outbound_ntlm",
+      "cve": null,
+      "notes": "Outbound SMB enables NTLM hash leaks."
+    },
+    {
+      "id": "t33",
+      "question": "A credential-stuffing attack against our VPN portal succeeded for three accounts. What is the immediate response?",
+      "expected_action": "enforce_mfa_and_reset",
+      "cve": null,
+      "notes": "Compromised valid accounts: reset and require MFA."
+    },
+    {
+      "id": "t34",
+      "question": "Passwords for several employees appeared in a public breach dump and still work on our Microsoft 365 tenant. What should we do?",
+      "expected_action": "enforce_mfa_and_reset",
+      "cve": null,
+      "notes": "Exposed credentials that are still valid."
+    },
+    {
+      "id": "t35",
+      "question": "An attacker logs in every day with a contractor's valid username and password from a new device. How do we cut off this access?",
+      "expected_action": "enforce_mfa_and_reset",
+      "cve": null,
+      "notes": "Valid accounts (T1078)."
     }
   ]
 }
