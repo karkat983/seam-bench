@@ -104,6 +104,76 @@
       "expected_action": "restrict_remote_services",
       "cve": null,
       "notes": "Asks about the open RDP exposure itself, not the stolen credentials."
+    },
+    {
+      "id": "t16",
+      "question": "Our SOC cannot tell which commands an attacker typed into cmd.exe and bash on compromised hosts. What logging should we turn on?",
+      "expected_action": "enable_script_logging",
+      "cve": null,
+      "notes": "Missing command-line visibility (T1059)."
+    },
+    {
+      "id": "t17",
+      "question": "A threat report says the actor runs malicious VBScript and JavaScript through wscript.exe. How do we get visibility into what those scripts execute?",
+      "expected_action": "enable_script_logging",
+      "cve": null,
+      "notes": "Script interpreter abuse; the gap is visibility."
+    },
+    {
+      "id": "t18",
+      "question": "We keep finding base64-encoded command lines on endpoints, but our logs only record the process name. What should we change?",
+      "expected_action": "enable_script_logging",
+      "cve": null,
+      "notes": "Command-line and script-block logging capture the content."
+    },
+    {
+      "id": "t19",
+      "question": "An incident responder found a memory dump of lsass.exe in a temp folder on a file server. How should we detect this activity in future?",
+      "expected_action": "monitor_lsass_access",
+      "cve": null,
+      "notes": "Dumping LSASS memory (T1003.001)."
+    },
+    {
+      "id": "t20",
+      "question": "Attackers are using the comsvcs.dll MiniDump trick to pull credentials out of process memory. What detection should we deploy?",
+      "expected_action": "monitor_lsass_access",
+      "cve": null,
+      "notes": "comsvcs MiniDump targets LSASS; alert on LSASS access."
+    },
+    {
+      "id": "t21",
+      "question": "A phishing document exploited CVE-2017-11882 in the Equation Editor and started a downloader. What control stops Office from launching such payloads?",
+      "expected_action": "block_office_child_processes",
+      "cve": "CVE-2017-11882",
+      "notes": "Asks for the control that stops Office launching payloads."
+    },
+    {
+      "id": "t22",
+      "question": "Excel files with macros are dropping executables into user folders and running them. How do we stop Excel itself from starting other programs?",
+      "expected_action": "block_office_child_processes",
+      "cve": null,
+      "notes": "Office spawning processes is what the rule blocks."
+    },
+    {
+      "id": "t23",
+      "question": "Employees regularly click links in emails that impersonate our CEO. What should we invest in so staff recognise and report these messages?",
+      "expected_action": "train_users_phishing",
+      "cve": null,
+      "notes": "Explicitly about staff recognising and reporting."
+    },
+    {
+      "id": "t24",
+      "question": "A red-team exercise showed that 30% of staff entered credentials on a fake invoice portal sent by email. Which action targets that behaviour?",
+      "expected_action": "train_users_phishing",
+      "cve": null,
+      "notes": "Human behaviour, not a technical control."
+    },
+    {
+      "id": "t25",
+      "question": "How should we respond to CVE-2024-3400 on the Palo Alto firewall that terminates our remote-access VPN?",
+      "expected_action": "patch_public_facing_service",
+      "cve": "CVE-2024-3400",
+      "notes": "Internet-facing appliance with unauthenticated RCE."
     }
   ]
 }
